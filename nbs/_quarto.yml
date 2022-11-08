@@ -5,7 +5,8 @@ format:
   html:
     theme: cosmo
     css: styles.css
-    toc: true
+    # toc: true
+    page-layout: full
 
 website:
   twitter-card: true
@@ -14,6 +15,9 @@ website:
   navbar:
     background: primary
     search: true
+    right:
+      - icon: github
+        href: "http://github.com/xl0/lovely-jax/"
   sidebar:
     style: floating
 
