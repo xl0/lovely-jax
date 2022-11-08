@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "lovely-jax"
+  site-url: "https://xl0.github.io/lovely-jax"
+  description: "Lovely JAX"
+  repo-branch: master
+  repo-url: "https://github.com/xl0/lovely-jax"
