@@ -3,8 +3,10 @@
 # %% auto 0
 __all__ = ['monkey_patch']
 
-# %% ../nbs/10_patch.ipynb 3
+# %% ../nbs/10_patch.ipynb 4
+import jax
 import jax.numpy as jnp
+from jax._src import array
 from fastcore.foundation import patch_to
 import matplotlib.pyplot as plt
 
@@ -13,8 +15,8 @@ from .repr_str import StrProxy
 # from lovely_tensors.repr_plt import PlotProxy
 # from lovely_tensors.repr_chans import ChanProxy
 
-# %% ../nbs/10_patch.ipynb 4
-def monkey_patch(cls=jnp.DeviceArray):
+# %% ../nbs/10_patch.ipynb 5
+def monkey_patch(cls=array.ArrayImpl):
     "Monkey-patch lovely features into `cls`" 
 
     # print(cls)
@@ -23,24 +25,32 @@ def monkey_patch(cls=jnp.DeviceArray):
 
     if not hasattr(cls, '_plain_repr'):
         cls._plain_repr = cls.__repr__
+        cls._plain_str = cls.__str__
 
     @patch_to(cls)
-    def __repr__(self: jnp.DeviceArray):
-        
+    def __repr__(self: jax.Array):
         return str(StrProxy(self))
+    
+    # __str__ is used when you do print(), and gives a less detailed version of the object.
+    # __repr__ is used when you inspect an object in Jupyter or VSCode, and gives a more detailed version.
+    # I think we want to patch both.
+    @patch_to(cls)
+    def __str__(self: jax.Array):
+        return str(StrProxy(self))
+
 
     # Plain - the old behavior
     @patch_to(cls, as_prop=True)
-    def p(self: jnp.DeviceArray):
+    def p(self: jax.Array):
         return StrProxy(self, plain=True)
 
     # Verbose - print both stats and plain values
     @patch_to(cls, as_prop=True)
-    def v(self: jnp.DeviceArray):
+    def v(self: jax.Array):
         return StrProxy(self, verbose=True)
 
     @patch_to(cls, as_prop=True)
-    def deeper(self: jnp.DeviceArray):
+    def deeper(self: jax.Array):
         return StrProxy(self, depth=1)
 
     # @patch_to(cls, as_prop=True)

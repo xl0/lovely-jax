@@ -5,8 +5,8 @@ __all__ = ['PRINT_OPTS', 'pretty_str', 'lovely']
 
 # %% ../nbs/00_repr_str.ipynb 3
 from typing import Optional, Union
-import jax.numpy as jnp
-from jax import random
+
+import jax, jax.numpy as jnp
 
 # %% ../nbs/00_repr_str.ipynb 4
 class __PrinterOptions(object):
@@ -48,12 +48,12 @@ def pretty_str(x: Union[jnp.DeviceArray, float, int]):
         slices = [pretty_str(x[i]) for i in range(0, x.shape[0])]
         return '[' + ", ".join(slices) + ']'
 
-# %% ../nbs/00_repr_str.ipynb 13
+# %% ../nbs/00_repr_str.ipynb 14
 def space_join(lst: list):
     "Join non-empty list elements into a space-sepaeated string"
     return " ".join( [ l for l in lst if l] )
 
-# %% ../nbs/00_repr_str.ipynb 15
+# %% ../nbs/00_repr_str.ipynb 16
 dtnames = { jnp.dtype(k): v for k,v in {"float32": "",
                                         "float16": "f16",
                                         "float64": "f64",
@@ -66,14 +66,19 @@ dtnames = { jnp.dtype(k): v for k,v in {"float32": "",
 }
 def short_dtype(x): return dtnames.get(x.dtype, str(x.dtype))
 
-# %% ../nbs/00_repr_str.ipynb 16
+# %% ../nbs/00_repr_str.ipynb 17
 def plain_repr(x):
-    "Pick either x.__repr__ or x._plain_repr if __repr__ has been monkey-patched"
+    "Pick the right function to get a plain repr"
     return x._plain_repr() if hasattr(x.__class__, "_plain_repr") else x.__repr__()
 
-# %% ../nbs/00_repr_str.ipynb 17
+def plain_str(x):
+    "Pick the right function to get a plain str"
+    return x._plain_str() if hasattr(x.__class__, "_plain_str") else x.__str__()
+
+
+# %% ../nbs/00_repr_str.ipynb 18
 class StrProxy():
-    def __init__(self, x: jnp.DeviceArray, plain=False, verbose=False, depth=0, lvl=0, color=None):
+    def __init__(self, x:jax.Array, plain=False, verbose=False, depth=0, lvl=0, color=None):
         self.x = x
         self.plain = plain
         self.verbose = verbose
@@ -83,7 +88,7 @@ class StrProxy():
 
     # @torch.no_grad()
     def to_str(self):
-        x : jnp.DeviceArray = self.x
+        x : jax.Array = self.x
 
         if self.plain or jnp.iscomplex(x).any():
             return plain_repr(x)
@@ -119,13 +124,14 @@ class StrProxy():
 
         attention = space_join([zeros,pinf,ninf,nan])
 
-        vals = ""
+        vals = None
         numel = f"n={x.size}" if x.size > 5 and max(x.shape) != x.size else None
         summary = None
         if not zeros:
             if x.size <= 10: vals = pretty_str(x)
             
-        #     # Make sure it's float32. Also, we calculate stats on good values only.
+            # Make sure it's float32.
+            # Also, we calculate stats on good values only.
 
             ft = jnp.extract(jnp.isfinite(x), x).astype(jnp.float32)
 
@@ -133,9 +139,6 @@ class StrProxy():
             meanstd = f"μ={pretty_str(ft.mean())} σ={pretty_str(ft.std())}" if ft.size >= 2 else None
 
             summary = space_join([minmax, meanstd])
-
-
-
 
         res = tname + space_join([  shape,
                                     numel,
@@ -164,7 +167,7 @@ class StrProxy():
     def __call__(self, depth=0):
         return StrProxy(self.x, depth=depth)
 
-# %% ../nbs/00_repr_str.ipynb 19
+# %% ../nbs/00_repr_str.ipynb 20
 def lovely(x: jnp.DeviceArray, # Tensor of interest
             verbose=False,  # Whether to show the full tensor
             plain=False,    # Just print if exactly as before

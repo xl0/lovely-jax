@@ -2,7 +2,7 @@ website:
   sidebar:
     contents:
       - index.ipynb
-      - section: Tensor representations
+      - section: Data representations
         contents:
           - 00_repr_str.ipynb
           # - 01_repr_rgb.ipynb
