@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['monkey_patch']
 
-# %% ../nbs/10_patch.ipynb 3
+# %% ../nbs/10_patch.ipynb 4
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from .repr_str import StrProxy
 from .repr_rgb import RGBProxy
 # from lovely_tensors.repr_plt import PlotProxy
-# from lovely_tensors.repr_chans import ChanProxy
+from .repr_chans import ChanProxy
 
-# %% ../nbs/10_patch.ipynb 4
+# %% ../nbs/10_patch.ipynb 5
 def _monkey_patch(cls):
     "Monkey-patch lovely features into `cls`" 
 
@@ -58,9 +58,9 @@ def _monkey_patch(cls):
     def rgb(t: jax.Array):
         return RGBProxy(t)
     
-    # @patch_to(cls, as_prop=True)
-    # def chans(t: torch.Tensor):
-    #     return ChanProxy(t)
+    @patch_to(cls, as_prop=True)
+    def chans(t: jax.Array):
+        return ChanProxy(t)
 
     # @patch_to(cls, as_prop=True)
     # def plt(t: torch.Tensor):

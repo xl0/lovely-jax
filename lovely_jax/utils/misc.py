@@ -11,9 +11,9 @@ from fastcore.test import test_eq
 
 # %% ../../nbs/03b_utils.misc.ipynb 6
 def to_numpy(t):
-    if t.dtype == jnp.bfloat16:
-        t = np.array(t, dtype=np.float32)
-    return t
+    # if t.dtype == jnp.bfloat16:
+    return np.array(t, dtype=np.float32)
+    # return t
 
 # %% ../../nbs/03b_utils.misc.ipynb 7
 def is_cpu(t: jax.Array):
