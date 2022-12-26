@@ -3,7 +3,8 @@
 # %% auto 0
 __all__ = ['monkey_patch']
 
-# %% ../nbs/10_patch.ipynb 4
+# %% ../nbs/10_patch.ipynb 3
+import numpy as np
 import jax
 import jax.numpy as jnp
 from jax._src import array
@@ -15,8 +16,8 @@ from .repr_str import StrProxy
 # from lovely_tensors.repr_plt import PlotProxy
 # from lovely_tensors.repr_chans import ChanProxy
 
-# %% ../nbs/10_patch.ipynb 5
-def monkey_patch(cls=array.ArrayImpl):
+# %% ../nbs/10_patch.ipynb 4
+def _monkey_patch(cls):
     "Monkey-patch lovely features into `cls`" 
 
     # print(cls)
@@ -64,3 +65,8 @@ def monkey_patch(cls=array.ArrayImpl):
     # @patch_to(cls, as_prop=True)
     # def plt(t: torch.Tensor):
     #     return PlotProxy(t)
+
+
+def monkey_patch():
+    _monkey_patch(array.ArrayImpl)
+    _monkey_patch(array.DeviceArray)    
