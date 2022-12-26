@@ -12,7 +12,7 @@ from fastcore.foundation import patch_to
 import matplotlib.pyplot as plt
 
 from .repr_str import StrProxy
-# from lovely_tensors.repr_rgb import RGBProxy
+from .repr_rgb import RGBProxy
 # from lovely_tensors.repr_plt import PlotProxy
 # from lovely_tensors.repr_chans import ChanProxy
 
@@ -54,9 +54,9 @@ def _monkey_patch(cls):
     def deeper(self: jax.Array):
         return StrProxy(self, depth=1)
 
-    # @patch_to(cls, as_prop=True)
-    # def rgb(t: torch.Tensor):
-    #     return RGBProxy(t)
+    @patch_to(cls, as_prop=True)
+    def rgb(t: jax.Array):
+        return RGBProxy(t)
     
     # @patch_to(cls, as_prop=True)
     # def chans(t: torch.Tensor):

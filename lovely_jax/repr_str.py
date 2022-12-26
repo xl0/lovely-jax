@@ -14,7 +14,7 @@ from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color
 from lovely_numpy import config as lnp_config
 
 from .utils.config import get_config
-# from lovely_jax.utils.misc import to_numpy
+from .utils.misc import to_numpy, is_cpu, test_array_repr
 
 # %% ../nbs/00_repr_str.ipynb 7
 dtnames =   {   "float16": "f16",
@@ -85,11 +85,6 @@ def jax_str_common(x: jax.Array,  # Input
     return sparse_join([ summary, attention])
 
 # %% ../nbs/00_repr_str.ipynb 14
-def is_cpu(t: jax.Array):
-    return t.device() == jax.devices("cpu")[0]
-
-
-# %% ../nbs/00_repr_str.ipynb 15
 def jax_to_str_common(x: jax.Array,  # Input
                         color=True,                     # ANSI color highlighting
                         ddof=0):                        # For "std" unbiasing
@@ -119,7 +114,7 @@ def jax_to_str_common(x: jax.Array,  # Input
 
     return sparse_join([ summary, attention])
 
-# %% ../nbs/00_repr_str.ipynb 16
+# %% ../nbs/00_repr_str.ipynb 15
 def to_str(x: jax.Array,  # Input
             plain: bool=False,
             verbose: bool=False,
@@ -136,7 +131,7 @@ def to_str(x: jax.Array,  # Input
     shape = str(list(x.shape)) if x.ndim else None
     type_str = sparse_join([tname, shape], sep="")
     
-    dev = str(x.device()) if x.device().platform != "cpu" else None
+    dev = str(x.device()) if not is_cpu(x) else None
     dtype = short_dtype(x)
     # grad_fn = t.grad_fn.name() if t.grad_fn else None
     # PyTorch does not want you to know, but all `grad_fn``
@@ -185,14 +180,14 @@ def to_str(x: jax.Array,  # Input
 
     return res
 
-# %% ../nbs/00_repr_str.ipynb 17
+# %% ../nbs/00_repr_str.ipynb 16
 def history_warning():
     "Issue a warning (once) ifw e are running in IPYthon with output cache enabled"
 
     if "get_ipython" in globals() and get_ipython().cache_size > 0:
         warnings.warn("IPYthon has its output cache enabled. See https://xl0.github.io/lovely-tensors/history.html")
 
-# %% ../nbs/00_repr_str.ipynb 20
+# %% ../nbs/00_repr_str.ipynb 19
 class StrProxy():
     def __init__(self, x: jax.Array, plain=False, verbose=False, depth=0, lvl=0, color=None):
         self.x = x
@@ -212,7 +207,7 @@ class StrProxy():
     def __call__(self, depth=1):
         return StrProxy(self.x, depth=depth)
 
-# %% ../nbs/00_repr_str.ipynb 21
+# %% ../nbs/00_repr_str.ipynb 20
 def lovely(x: jax.Array, # Tensor of interest
             verbose=False,  # Whether to show the full tensor
             plain=False,    # Just print if exactly as before
