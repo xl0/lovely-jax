@@ -187,6 +187,57 @@ print(repr(numbers))
 
     DeviceArray[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 gpu:0
 
+``` python
+numbers.rgb
+```
+
+![](index_files/figure-gfm/cell-15-output-1.png)
+
+``` python
+in_stats = ( (0.485, 0.456, 0.406),     # mean 
+             (0.229, 0.224, 0.225) )    # std
+
+# numbers.rgb(in_stats, cl=False) # For channel-first input format
+numbers.rgb(in_stats)
+```
+
+![](index_files/figure-gfm/cell-16-output-1.png)
+
+``` python
+(numbers+3).plt
+```
+
+![](index_files/figure-gfm/cell-17-output-1.svg)
+
+``` python
+(numbers+3).plt(center="mean", max_s=1000)
+```
+
+![](index_files/figure-gfm/cell-18-output-1.svg)
+
+``` python
+(numbers+3).plt(center="range")
+```
+
+![](index_files/figure-gfm/cell-19-output-1.svg)
+
+``` python
+# .chans will map values betwen [0,1] to colors.
+# Make our values fit into that range to avoid clipping.
+mean = jnp.array(in_stats[0])
+std = jnp.array(in_stats[1])
+numbers_01 = (numbers*std + mean)
+numbers_01
+```
+
+    DeviceArray[196, 196, 3] n=115248 x∈[0., 1.000] μ=0.361 σ=0.248 gpu:0
+
+``` python
+numbers_01.chans
+```
+
+![](index_files/figure-gfm/cell-21-output-1.png)
+
 ## Without `monkey_patch()`
 
 ``` python
@@ -218,3 +269,21 @@ lj.lovely(numbers, depth=1)
       DeviceArray[196, 3] n=588 x∈[-1.475, 2.431] μ=-0.791 σ=0.463 gpu:0
       DeviceArray[196, 3] n=588 x∈[-1.526, 2.429] μ=-0.759 σ=0.499 gpu:0
       ...
+
+``` python
+lj.rgb(numbers, in_stats)
+```
+
+![](index_files/figure-gfm/cell-25-output-1.png)
+
+``` python
+lj.plot(numbers, center="mean")
+```
+
+![](index_files/figure-gfm/cell-26-output-1.svg)
+
+``` python
+lj.chans(numbers_01)
+```
+
+![](index_files/figure-gfm/cell-27-output-1.png)

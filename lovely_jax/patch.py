@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 from .repr_str import StrProxy
 from .repr_rgb import RGBProxy
-# from lovely_tensors.repr_plt import PlotProxy
+from .repr_plt import PlotProxy
 from .repr_chans import ChanProxy
 
 # %% ../nbs/10_patch.ipynb 5
@@ -62,9 +62,9 @@ def _monkey_patch(cls):
     def chans(t: jax.Array):
         return ChanProxy(t)
 
-    # @patch_to(cls, as_prop=True)
-    # def plt(t: torch.Tensor):
-    #     return PlotProxy(t)
+    @patch_to(cls, as_prop=True)
+    def plt(t: jax.Array):
+        return PlotProxy(t)
 
 
 def monkey_patch():
