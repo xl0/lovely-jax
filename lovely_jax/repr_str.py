@@ -154,7 +154,7 @@ def to_str(x: jax.Array,  # Input
                         sci_mode=conf.sci_mode):
 
             if is_cpu(x) or is_nasty(x):
-                common = np_to_str_common(np.array(x), color=color, ddof=1)
+                common = np_to_str_common(np.array(x), color=color)
             else:
                 common = jax_to_str_common(x, color=color)
 

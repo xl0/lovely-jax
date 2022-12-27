@@ -97,7 +97,7 @@ spicy = (spicy  .at[0].mul(10000)
 spicy # Spicy stuff
 ```
 
-    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.180e+03 +Inf! -Inf! NaN! gpu:0
+    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! gpu:0
 
 ``` python
 jnp.zeros((10, 10)) # A zero tensor - make it obvious
@@ -109,7 +109,7 @@ jnp.zeros((10, 10)) # A zero tensor - make it obvious
 spicy.v # Verbose
 ```
 
-    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.180e+03 +Inf! -Inf! NaN! gpu:0
+    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! gpu:0
     Array([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],
            [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)
 
@@ -244,13 +244,13 @@ numbers_01.chans
 lj.lovely(spicy)
 ```
 
-    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.180e+03 +Inf! -Inf! NaN! gpu:0
+    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! gpu:0
 
 ``` python
 lj.lovely(spicy, verbose=True)
 ```
 
-    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.180e+03 +Inf! -Inf! NaN! gpu:0
+    Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! gpu:0
     Array([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],
            [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)
 
