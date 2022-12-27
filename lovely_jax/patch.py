@@ -20,10 +20,6 @@ from .repr_chans import ChanProxy
 def _monkey_patch(cls):
     "Monkey-patch lovely features into `cls`" 
 
-    # print(cls)
-    # print(cls.__repr__)
-    # print(cls.__repr)
-
     if not hasattr(cls, '_plain_repr'):
         cls._plain_repr = cls.__repr__
         cls._plain_str = cls.__str__

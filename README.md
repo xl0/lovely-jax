@@ -9,11 +9,11 @@
 
 </div>
 
-## Note: I’m pretty new to JAX.
+## Note: I’m pretty new to JAX
 
 If something does not make sense, shoot me an
-[Issue](https://github.com/xl0/lovely-jax/issues) and let me know how
-it’s supposed to work!
+[Issue](https://github.com/xl0/lovely-jax/issues) or ping me on Discord
+and let me know how it’s supposed to work!
 
 ## Install
 
