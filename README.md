@@ -15,6 +15,9 @@ If something does not make sense, shoot me an
 [Issue](https://github.com/xl0/lovely-jax/issues) or ping me on Discord
 and let me know how it’s supposed to work!
 
+Better support for sharded arrays and solid jit/pmap/vmap support coming
+soon!
+
 ## Install
 
 ``` sh
@@ -69,10 +72,10 @@ import lovely_jax as lj
 lj.monkey_patch()
 ```
 
-## `__repr__`
+## Summary
 
 ``` python
-numbers # torch.Tensor
+numbers
 ```
 
     Array[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 gpu:0
@@ -100,7 +103,7 @@ spicy # Spicy stuff
     Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! gpu:0
 
 ``` python
-jnp.zeros((10, 10)) # A zero tensor - make it obvious
+jnp.zeros((10, 10)) # A zero array - make it obvious
 ```
 
     Array[10, 10] all_zeros gpu:0
@@ -163,66 +166,54 @@ numbers[:3,:5,:3].deeper(2)
         Array[3] x∈[-1.003, -0.478] μ=-0.708 σ=0.219 gpu:0 [-0.645, -0.478, -1.003]
         Array[3] x∈[-1.316, -0.513] μ=-0.865 σ=0.336 gpu:0 [-0.765, -0.513, -1.316]
 
-``` python
-# __tracebackhide__=False
+## Now in `.rgb` color
 
-# def f(x):
-#     __tracebackhide__=False
-
-#     jax.debug.print(" sdfs {x} sfsdf", x=x)
-#     jax.debug.print(" sdfs {x} sfsdf", x=type(x))
-#     return x*2
-
-# fj = jax.jit(f)
-
-# _ = fj(numbers)
-
-
-# # print(numbers)
-```
-
-``` python
-print(repr(numbers))
-```
-
-    Array[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 gpu:0
+The important queston - is it our man?
 
 ``` python
 numbers.rgb
 ```
 
-![](index_files/figure-gfm/cell-15-output-1.png)
+![](index_files/figure-gfm/cell-13-output-1.png)
+
+*Maaaaybe?* Looks like someone normalized him.
 
 ``` python
 in_stats = ( (0.485, 0.456, 0.406),     # mean 
              (0.229, 0.224, 0.225) )    # std
 
-# numbers.rgb(in_stats, cl=False) # For channel-first input format
+# numbers.rgb(in_stats, cl=True) # For channel-last input format
 numbers.rgb(in_stats)
 ```
 
-![](index_files/figure-gfm/cell-16-output-1.png)
+![](index_files/figure-gfm/cell-14-output-1.png)
+
+It’s indeed our hero, the Tenchman!
+
+## `.plt` the statistics
 
 ``` python
 (numbers+3).plt
 ```
 
-![](index_files/figure-gfm/cell-17-output-1.svg)
+![](index_files/figure-gfm/cell-15-output-1.svg)
 
 ``` python
 (numbers+3).plt(center="mean", max_s=1000)
 ```
 
-![](index_files/figure-gfm/cell-18-output-1.svg)
+![](index_files/figure-gfm/cell-16-output-1.svg)
 
 ``` python
 (numbers+3).plt(center="range")
 ```
 
-![](index_files/figure-gfm/cell-19-output-1.svg)
+![](index_files/figure-gfm/cell-17-output-1.svg)
+
+## See the `.chans`
 
 ``` python
-# .chans will map values betwen [0,1] to colors.
+# .chans will map values betwen [-1,1] to colors.
 # Make our values fit into that range to avoid clipping.
 mean = jnp.array(in_stats[0])
 std = jnp.array(in_stats[1])
@@ -236,9 +227,60 @@ numbers_01
 numbers_01.chans
 ```
 
+![](index_files/figure-gfm/cell-19-output-1.png)
+
+## Grouping
+
+``` python
+# Make 8 images with progressively higher brightness and stack them 2x2x2.
+eight_images = (jnp.stack([numbers]*8) + jnp.linspace(-2, 2, 8)[:,None,None,None])
+eight_images = (eight_images
+                     *jnp.array(in_stats[1])
+                     +jnp.array(in_stats[0])
+                ).clip(0,1).reshape(2,2,2,196,196,3)
+
+eight_images
+```
+
+    Array[2, 2, 2, 196, 196, 3] n=921984 x∈[0., 1.000] μ=0.382 σ=0.319 gpu:0
+
+``` python
+eight_images.rgb
+```
+
 ![](index_files/figure-gfm/cell-21-output-1.png)
 
-## Without `monkey_patch()`
+## Options \| [Docs](utils.config.html)
+
+``` python
+from lovely_jax import set_config, config, lovely, get_config
+```
+
+``` python
+set_config(precision=5, sci_mode=True, color=False)
+jnp.array([1., 2, jnp.nan])
+```
+
+    Array[3] μ=1.50000e+00 σ=5.00000e-01 NaN! gpu:0 [1.00000e+00, 2.00000e+00, nan]
+
+``` python
+set_config(precision=None, sci_mode=None, color=None) # None -> Reset to defaults
+```
+
+``` python
+print(jnp.array([1., 2]))
+# Or with config context manager.
+with config(sci_mode=True, precision=5):
+    print(jnp.array([1., 2]))
+
+print(jnp.array([1., 2]))
+```
+
+    Array[2] μ=1.500 σ=0.500 gpu:0 [1.000, 2.000]
+    Array[2] μ=1.50000e+00 σ=5.00000e-01 gpu:0 [1.00000e+00, 2.00000e+00]
+    Array[2] μ=1.500 σ=0.500 gpu:0 [1.000, 2.000]
+
+## Without `.monkey_patch`
 
 ``` python
 lj.lovely(spicy)
@@ -274,16 +316,60 @@ lj.lovely(numbers, depth=1)
 lj.rgb(numbers, in_stats)
 ```
 
-![](index_files/figure-gfm/cell-25-output-1.png)
+![](index_files/figure-gfm/cell-29-output-1.png)
 
 ``` python
 lj.plot(numbers, center="mean")
 ```
 
-![](index_files/figure-gfm/cell-26-output-1.svg)
+![](index_files/figure-gfm/cell-30-output-1.svg)
 
 ``` python
 lj.chans(numbers_01)
 ```
 
-![](index_files/figure-gfm/cell-27-output-1.png)
+![](index_files/figure-gfm/cell-31-output-1.png)
+
+## Matplotlib integration \| [Docs](matplotlib.html)
+
+``` python
+numbers.rgb(in_stats).fig # matplotlib figure
+```
+
+![](index_files/figure-gfm/cell-32-output-1.svg)
+
+``` python
+(numbers*0.3+0.5).chans.fig # matplotlib figure
+```
+
+![](index_files/figure-gfm/cell-33-output-1.svg)
+
+``` python
+numbers.plt.fig.savefig('pretty.svg') # Save it
+```
+
+``` python
+!file pretty.svg; rm pretty.svg
+```
+
+    pretty.svg: SVG Scalable Vector Graphics image
+
+### Add content to existing Axes
+
+``` python
+fig = plt.figure(figsize=(8,3))
+fig.set_constrained_layout(True)
+gs = fig.add_gridspec(2,2)
+ax1 = fig.add_subplot(gs[0, :])
+ax2 = fig.add_subplot(gs[1, 0])
+ax3 = fig.add_subplot(gs[1,1:])
+
+ax2.set_axis_off()
+ax3.set_axis_off()
+
+numbers_01.plt(ax=ax1)
+numbers_01.rgb(ax=ax2)
+numbers_01.chans(ax=ax3);
+```
+
+![](index_files/figure-gfm/cell-36-output-1.svg)
