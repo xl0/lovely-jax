@@ -9,7 +9,7 @@ from typing import Union, Any, Optional as O
 from functools import cached_property
 
 import jax, jax.numpy as jnp
-from matplotlib import pyplot as plt, axes, figure, rc_context
+from matplotlib import pyplot as plt, axes, figure, rc_context, rcParams
 from IPython.core.pylabtools import print_figure
 
 from lovely_numpy.repr_plt import fig_plot

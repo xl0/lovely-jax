@@ -4,6 +4,8 @@
 __all__ = []
 
 # %% ../../nbs/03b_utils.misc.ipynb 5
+import re
+import codecs
 import numpy as np
 import jax, jax.numpy as jnp
 
@@ -21,15 +23,22 @@ def is_cpu(t: jax.Array):
 
 
 # %% ../../nbs/03b_utils.misc.ipynb 8
-def test_array_repr(r: str, template:str):
+def test_array_repr(input: str, template:str):
     # Depending on the jax version, the arrray type can be either "Array" or "DeviceArray".
-    # The remplate repr is of Array tyoe, but if our array is DeviceArray, it will be fine
-    # too.
+    # Depending on platform, the default device can be "cpu:0" or "gpu:0" (or, I guess, "tpu:0"?)
 
-    if not ((template == r) or (template.replace("Array", "DeviceArray") == r)):
-        print(f"template: {template}")
-        print(f"r: {r}")
-        raise Exception("The array repr is not as expected")
+    # Create templace to match the "Array" and "gpu:0" case, they will be replaced with
+    # regexes that will match either case
 
-test_array_repr("DeviceArray[2] μ=-0.466 σ=1.515 gpu:0 [-1.981, 1.048]",
-                "Array[2] μ=-0.466 σ=1.515 gpu:0 [-1.981, 1.048]")
+    # Escape the template to make it a valid regex.
+    template = re.escape(template)
+     
+    template = template.replace("Array", "(Array|DeviceArray)")
+    template = template.replace("gpu:0", "(cpu:0|gpu:0|tpu:0)")
+    
+
+    # Does imput match the regex?
+    if not re.search(template, input):
+        unescaped_template = template.replace("\\", "")
+        raise Exception(f"Template does not match\nTemplate: '{unescaped_template}'\ninput:    '{input}'")
+        
