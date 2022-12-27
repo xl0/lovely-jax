@@ -34,7 +34,7 @@ def test_array_repr(input: str, template:str):
      
     template = re.escape(template)
     template = template.replace("Array", "(Array|DeviceArray)")
-    template = template.replace("gpu:0\\ ", "(cpu:0 |gpu:0 |tpu:0 )?")
+    template = template.replace("\\ gpu:0", "( cpu:0| gpu:0| tpu:0)?")
     
     # Does imput match the regex?
     if not re.search(template, input):
