@@ -57,34 +57,6 @@ def is_nasty(x: jax.Array):
     return jnp.isnan(x_min) or jnp.isinf(x_min) or jnp.isinf(x_max)
 
 # %% ../nbs/00_repr_str.ipynb 12
-def jax_str_common(x: jax.Array,  # Input
-                        color=True,    # ANSI color highlighting
-                        ) -> str:
-    
-    if x.size == 0: return ansi_color("empty", "grey", color)
-
-
-    # Note: At the moment the MPS backend does not support isinf or isnan.
-    # Move to CPU, as this does not cost us anything.
-    amin, amax = x.min(), x.max()
-
-    zeros = ansi_color("all_zeros", "grey", color) if amin == 0 and amax == 0 and x.size > 1 else None
-    pinf = ansi_color("+Inf!", "red", color) if jnp.isposinf(amax) else None
-    ninf = ansi_color("-Inf!", "red", color) if jnp.isneginf(amin) else None
-    nan = ansi_color("NaN!", "red", color) if jnp.isnan(amin) else None
-
-    attention = sparse_join([zeros,pinf,ninf,nan])
-    numel = f"n={x.size}" if x.size > 5 and max(x.shape) != x.size else None
-
-    summary = None
-    if not zeros:
-        minmax = f"x∈[{pretty_str(amin)}, {pretty_str(amax)}]" if x.size > 2 else None
-        meanstd = f"μ={pretty_str(x.mean())} σ={pretty_str(x.std())}" if x.size >= 2 else None
-        summary = sparse_join([numel, minmax, meanstd])
-
-    return sparse_join([ summary, attention])
-
-# %% ../nbs/00_repr_str.ipynb 14
 def jax_to_str_common(x: jax.Array,  # Input
                         color=True,                     # ANSI color highlighting
                         ddof=0):                        # For "std" unbiasing
@@ -114,7 +86,7 @@ def jax_to_str_common(x: jax.Array,  # Input
 
     return sparse_join([ summary, attention])
 
-# %% ../nbs/00_repr_str.ipynb 15
+# %% ../nbs/00_repr_str.ipynb 13
 def to_str(x: jax.Array,  # Input
             plain: bool=False,
             verbose: bool=False,
@@ -131,7 +103,7 @@ def to_str(x: jax.Array,  # Input
     shape = str(list(x.shape)) if x.ndim else None
     type_str = sparse_join([tname, shape], sep="")
     
-    dev = str(x.device()) if not is_cpu(x) else None
+    dev = str(x.device())
     dtype = short_dtype(x)
     # grad_fn = t.grad_fn.name() if t.grad_fn else None
     # PyTorch does not want you to know, but all `grad_fn``
@@ -180,14 +152,14 @@ def to_str(x: jax.Array,  # Input
 
     return res
 
-# %% ../nbs/00_repr_str.ipynb 16
+# %% ../nbs/00_repr_str.ipynb 14
 def history_warning():
     "Issue a warning (once) ifw e are running in IPYthon with output cache enabled"
 
     if "get_ipython" in globals() and get_ipython().cache_size > 0:
         warnings.warn("IPYthon has its output cache enabled. See https://xl0.github.io/lovely-tensors/history.html")
 
-# %% ../nbs/00_repr_str.ipynb 19
+# %% ../nbs/00_repr_str.ipynb 17
 class StrProxy():
     def __init__(self, x: jax.Array, plain=False, verbose=False, depth=0, lvl=0, color=None):
         self.x = x
@@ -207,7 +179,7 @@ class StrProxy():
     def __call__(self, depth=1):
         return StrProxy(self.x, depth=depth)
 
-# %% ../nbs/00_repr_str.ipynb 20
+# %% ../nbs/00_repr_str.ipynb 18
 def lovely(x: jax.Array, # Tensor of interest
             verbose=False,  # Whether to show the full tensor
             plain=False,    # Just print if exactly as before

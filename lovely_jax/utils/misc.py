@@ -31,14 +31,13 @@ def test_array_repr(input: str, template:str):
     # regexes that will match either case
 
     # Escape the template to make it a valid regex.
-    template = re.escape(template)
      
+    template = re.escape(template)
     template = template.replace("Array", "(Array|DeviceArray)")
-    template = template.replace("gpu:0", "(cpu:0|gpu:0|tpu:0)")
+    template = template.replace("gpu:0\\ ", "(cpu:0 |gpu:0 |tpu:0 )?")
     
-
     # Does imput match the regex?
     if not re.search(template, input):
-        unescaped_template = template.replace("\\", "")
-        raise Exception(f"Template does not match\nTemplate: '{unescaped_template}'\ninput:    '{input}'")
+        template = template.replace("\\", "")
+        raise Exception(f"Template does not match\nTemplate: '{template}'\ninput:    '{input}'")
         
