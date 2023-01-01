@@ -23,6 +23,7 @@ def _monkey_patch(cls):
     if not hasattr(cls, '_plain_repr'):
         cls._plain_repr = cls.__repr__
         cls._plain_str = cls.__str__
+        cls._plain_format = cls.__format__
 
     @patch_to(cls)
     def __repr__(self: jax.Array):
@@ -35,6 +36,11 @@ def _monkey_patch(cls):
     def __str__(self: jax.Array):
         return str(StrProxy(self))
 
+    # Without this, the native __format__ will call into numpy formatter
+    # and will produce raw numbers. Idea: A way to pass fmt through?
+    @patch_to(cls)
+    def __format__(self: jax.Array, tmp: str):
+        return str(StrProxy(self))
 
     # Plain - the old behavior
     @patch_to(cls, as_prop=True)
@@ -65,4 +71,4 @@ def _monkey_patch(cls):
 
 def monkey_patch():
     _monkey_patch(array.ArrayImpl)
-    _monkey_patch(array.DeviceArray)    
+    _monkey_patch(array.DeviceArray)
