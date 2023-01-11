@@ -10,7 +10,7 @@ from typing import Union, Optional as O
 import numpy as np
 import jax, jax.numpy as jnp
 
-from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color
+from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color, in_debugger
 from lovely_numpy import config as lnp_config
 
 from .utils.config import get_config
@@ -115,7 +115,8 @@ def to_str(x: jax.Array,  # Input
 
     # For complex tensors, just show the shape / size part for now.
     if not jnp.iscomplexobj(x):
-        color = conf.color if color is None else color
+        if color is None: color=conf.color
+        if in_debugger(): color = False
         # `lovely-numpy` is used to calculate stats when doing so on GPU would require
         # memory allocation (not float tensors, tensors with bad numbers), or if the
         # data is on CPU (because numpy is faster).
