@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['rgb']
 
-# %% ../nbs/01_repr_rgb.ipynb 5
+# %% ../nbs/01_repr_rgb.ipynb 4
 from typing import Any, Optional as O
 
 

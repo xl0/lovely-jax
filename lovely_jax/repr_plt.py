@@ -19,7 +19,7 @@ from .repr_str import to_str, pretty_str
 from .utils.misc import to_numpy
 from .utils.config import get_config
 
-# %% ../nbs/02_repr_plt.ipynb 5
+# %% ../nbs/02_repr_plt.ipynb 6
 # This is here for the monkey-patched tensor use case.
 # Gives the ability to call both .plt and .plt(ax=ax).  
 
@@ -71,7 +71,7 @@ class PlotProxy():
         return svg_repr
 
 
-# %% ../nbs/02_repr_plt.ipynb 6
+# %% ../nbs/02_repr_plt.ipynb 7
 def plot(   x       :jax.Array, # Tensor to explore
             center  :str    ="zero",    # Center plot on  `zero`, `mean`, or `range`
             max_s   :int    =10000,     # Draw up to this many samples. =0 to draw all

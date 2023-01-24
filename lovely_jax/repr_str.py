@@ -38,7 +38,7 @@ def short_dtype(x: jax.Array) -> str:
 def plain_repr(x: jax.Array):
     "Pick the right function to get a plain repr"
     # assert isinstance(x, np.ndarray), f"expected np.ndarray but got {type(x)}" # Could be a sub-class.
-    return x._plain_repr() if hasattr(type(x), "_plain_repr") else repr(x)
+    return x._plain_repr() if hasattr(x, "_plain_repr") else repr(x)
 
 # def plain_str(x: torch.Tensor):
 #     "Pick the right function to get a plain str."
@@ -74,11 +74,6 @@ def jax_to_str_common(x: jax.Array,  # Input
 
     summary = None
     if not zeros and x.ndim > 0:
-        # Calculate stats on good values only.
-        # This is memory expensive, don't do it on GPU.
-        # We divert to numpy if there are any nasties in the data.
-        # gx = x[ jnp.isfinite(x) ]
-
         minmax = f"x∈[{pretty_str(x.min())}, {pretty_str(x.max())}]" if x.size > 2 else None
         meanstd = f"μ={pretty_str(x.mean())} σ={pretty_str(x.std(ddof=ddof))}" if x.size >= 2 else None
         summary = sparse_join([numel, minmax, meanstd])
@@ -102,9 +97,20 @@ def to_str(x: jax.Array,  # Input
     tname = type(x).__name__.split(".")[-1]
     shape = str(list(x.shape)) if x.ndim else None
     type_str = sparse_join([tname, shape], sep="")
-    
 
-    dev = f"{x.device().platform}:{x.device().id}"
+    if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
+        int_dev_ids = sorted([d.id for d in x.devices()])
+        ids = ",".join(map(str, int_dev_ids))
+        dev = f"{x.devices()[0].platform}:{ids}"
+    elif hasattr(x, "device"): # Old-style DeviceArray
+        dev = f"{x.device().platform}:{x.device().id}"
+    elif hasattr(x, "sharding"):
+        int_dev_ids = sorted([d.id for d in x.sharding.devices])
+        ids = ",".join(map(str, int_dev_ids))
+        dev = f"{x.sharding.devices[0].platform}:{ids}"
+    else:
+        assert 0, f"Weird input type={type(input)}, expecrted Array, DeviceArray, or ShardedDeviceArray"
+
     dtype = short_dtype(x)
     # grad_fn = t.grad_fn.name() if t.grad_fn else None
     # PyTorch does not want you to know, but all `grad_fn``
@@ -142,7 +148,6 @@ def to_str(x: jax.Array,  # Input
         res += "\n" + plain_repr(x)
 
     if depth and x.ndim > 1:
-
         deep_width = min((x.shape[0]), conf.deeper_width) # Print at most this many lines
         deep_lines = [ " "*conf.indent*(lvl+1) + to_str(x[i,:], depth=depth-1, lvl=lvl+1)
                             for i in range(deep_width)] 

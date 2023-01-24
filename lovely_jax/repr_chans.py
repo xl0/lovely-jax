@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['chans']
 
-# %% ../nbs/05_repr_chans.ipynb 5
+# %% ../nbs/05_repr_chans.ipynb 4
 from typing import Any, Optional as O
 
 import jax, jax.numpy as jnp

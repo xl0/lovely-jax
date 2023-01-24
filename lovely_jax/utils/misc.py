@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = []
 
-# %% ../../nbs/03b_utils.misc.ipynb 5
+# %% ../../nbs/03b_utils.misc.ipynb 4
 import re
 import codecs
 import numpy as np
@@ -18,8 +18,15 @@ def to_numpy(t):
     # return t
 
 # %% ../../nbs/03b_utils.misc.ipynb 7
-def is_cpu(t: jax.Array):
-    return t.device() == jax.devices("cpu")[0]
+def is_cpu(x: jax.Array):
+
+    if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
+        return x.devices()[0] == jax.devices("cpu")[0]
+    if hasattr(x, "device"): # Old-style DeviceArray
+        return x.device() == jax.devices("cpu")[0]
+
+    assert hasattr(x, "sharding"), f"Weird input type={type(input)}, expecrted Array, DeviceArray, or ShardedDeviceArray"
+    return False
 
 
 # %% ../../nbs/03b_utils.misc.ipynb 8

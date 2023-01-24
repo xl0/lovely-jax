@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['monkey_patch']
 
-# %% ../nbs/10_patch.ipynb 4
+# %% ../nbs/10_patch.ipynb 5
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -16,7 +16,7 @@ from .repr_rgb import RGBProxy
 from .repr_plt import PlotProxy
 from .repr_chans import ChanProxy
 
-# %% ../nbs/10_patch.ipynb 5
+# %% ../nbs/10_patch.ipynb 8
 def _monkey_patch(cls):
     "Monkey-patch lovely features into `cls`" 
 
@@ -72,3 +72,4 @@ def _monkey_patch(cls):
 def monkey_patch():
     _monkey_patch(array.ArrayImpl)
     _monkey_patch(array.DeviceArray)
+    _monkey_patch(jax.pxla._ShardedDeviceArray)
