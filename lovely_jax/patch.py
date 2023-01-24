@@ -16,7 +16,7 @@ from .repr_rgb import RGBProxy
 from .repr_plt import PlotProxy
 from .repr_chans import ChanProxy
 
-# %% ../nbs/10_patch.ipynb 8
+# %% ../nbs/10_patch.ipynb 6
 def _monkey_patch(cls):
     "Monkey-patch lovely features into `cls`" 
 
