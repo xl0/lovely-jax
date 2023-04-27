@@ -72,4 +72,8 @@ def _monkey_patch(cls):
 def monkey_patch():
     _monkey_patch(array.ArrayImpl)
     _monkey_patch(array.DeviceArray)
-    _monkey_patch(jax.pxla._ShardedDeviceArray)
+
+    # This was required for earlied version of jax 0.4.x
+    if hasattr(jax.pxla, '_ShardedDeviceArray'):
+        _monkey_patch(jax.pxla._ShardedDeviceArray)
+    

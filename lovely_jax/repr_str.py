@@ -101,7 +101,7 @@ def to_str(x: jax.Array,  # Input
     if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
         int_dev_ids = sorted([d.id for d in x.devices()])
         ids = ",".join(map(str, int_dev_ids))
-        dev = f"{x.devices()[0].platform}:{ids}"
+        dev = f"{list(x.devices())[0].platform}:{ids}"
     elif hasattr(x, "device"): # Old-style DeviceArray
         dev = f"{x.device().platform}:{x.device().id}"
     elif hasattr(x, "sharding"):

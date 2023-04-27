@@ -21,7 +21,7 @@ def to_numpy(t):
 def is_cpu(x: jax.Array):
 
     if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
-        return x.devices()[0] == jax.devices("cpu")[0]
+        return list(x.devices())[0] == jax.devices("cpu")[0]
     if hasattr(x, "device"): # Old-style DeviceArray
         return x.device() == jax.devices("cpu")[0]
 
