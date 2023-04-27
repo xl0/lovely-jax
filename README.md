@@ -78,7 +78,7 @@ lj.monkey_patch()
 numbers
 ```
 
-    Array[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
+    Array[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
 
 Better, huh?
 
@@ -106,7 +106,7 @@ spicy # Spicy stuff
 jnp.zeros((10, 10)) # A zero array - make it obvious
 ```
 
-    Array[10, 10] all_zeros cpu:0
+    Array[10, 10] n=100 all_zeros cpu:0
 
 ``` python
 spicy.v # Verbose
@@ -129,7 +129,7 @@ spicy.p # The plain old way
 numbers.deeper
 ```
 
-    Array[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
+    Array[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
       Array[196, 3] n=588 x∈[-1.912, 2.411] μ=-0.728 σ=0.519 cpu:0
       Array[196, 3] n=588 x∈[-1.861, 2.359] μ=-0.778 σ=0.450 cpu:0
       Array[196, 3] n=588 x∈[-1.758, 2.379] μ=-0.838 σ=0.437 cpu:0
@@ -221,7 +221,7 @@ numbers_01 = (numbers*std + mean)
 numbers_01
 ```
 
-    Array[196, 196, 3] n=115248 x∈[0., 1.000] μ=0.361 σ=0.248 cpu:0
+    Array[196, 196, 3] n=115248 (0.4Mb) x∈[0., 1.000] μ=0.361 σ=0.248 cpu:0
 
 ``` python
 numbers_01.chans
@@ -242,7 +242,7 @@ eight_images = (eight_images
 eight_images
 ```
 
-    Array[2, 2, 2, 196, 196, 3] n=921984 x∈[0., 1.000] μ=0.382 σ=0.319 cpu:0
+    Array[2, 2, 2, 196, 196, 3] n=921984 (3.5Mb) x∈[0., 1.000] μ=0.382 σ=0.319 cpu:0
 
 ``` python
 eight_images.rgb
@@ -285,8 +285,8 @@ print(y)
 <span style="color: #ffffff; text-decoration-color: #ffffff; background-color: #a55194">            </span><span style="color: #ffffff; text-decoration-color: #ffffff; background-color: #8c6d31">            </span>
 </pre>
 
-    Array[8192, 8192] n=67108864 x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0
-    Array[8192, 8192] n=67108864 x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0,1,2,3,4,5,6,7
+    Array[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0
+    Array[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0,1,2,3,4,5,6,7
 
 ## Options \| [Docs](utils.config.html)
 
@@ -338,7 +338,7 @@ lj.lovely(spicy, verbose=True)
 lj.lovely(numbers, depth=1)
 ```
 
-    Array[196, 196, 3] n=115248 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
+    Array[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0
       Array[196, 3] n=588 x∈[-1.912, 2.411] μ=-0.728 σ=0.519 cpu:0
       Array[196, 3] n=588 x∈[-1.861, 2.359] μ=-0.778 σ=0.450 cpu:0
       Array[196, 3] n=588 x∈[-1.758, 2.379] μ=-0.838 σ=0.437 cpu:0
@@ -374,13 +374,13 @@ lj.chans(numbers_01)
 numbers.rgb(in_stats).fig # matplotlib figure
 ```
 
-![](index_files/figure-commonmark/cell-33-output-1.svg)
+![](index_files/figure-commonmark/cell-33-output-1.png)
 
 ``` python
 (numbers*0.3+0.5).chans.fig # matplotlib figure
 ```
 
-![](index_files/figure-commonmark/cell-34-output-1.svg)
+![](index_files/figure-commonmark/cell-34-output-1.png)
 
 ``` python
 numbers.plt.fig.savefig('pretty.svg') # Save it
@@ -410,4 +410,4 @@ numbers_01.rgb(ax=ax2)
 numbers_01.chans(ax=ax3);
 ```
 
-![](index_files/figure-commonmark/cell-37-output-1.svg)
+![](index_files/figure-commonmark/cell-37-output-1.png)

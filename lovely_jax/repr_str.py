@@ -10,10 +10,10 @@ from typing import Union, Optional as O
 import numpy as np
 import jax, jax.numpy as jnp
 
-from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color, in_debugger
+from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color, in_debugger, bytes_to_human
 from lovely_numpy import config as lnp_config
 
-from .utils.config import get_config
+from .utils.config import get_config, config
 from .utils.misc import to_numpy, is_cpu, test_array_repr
 
 # %% ../nbs/00_repr_str.ipynb 8
@@ -65,21 +65,20 @@ def jax_to_str_common(x: jax.Array,  # Input
         return ansi_color("empty", "grey", color)
 
     zeros = ansi_color("all_zeros", "grey", color) if jnp.equal(x, 0.).all() and x.size > 1 else None
-    pinf = ansi_color("+Inf!", "red", color) if jnp.isposinf(x).any() else None
-    ninf = ansi_color("-Inf!", "red", color) if jnp.isneginf(x).any() else None
-    nan = ansi_color("NaN!", "red", color) if jnp.isnan(x).any() else None
+    # pinf = ansi_color("+Inf!", "red", color) if jnp.isposinf(x).any() else None
+    # ninf = ansi_color("-Inf!", "red", color) if jnp.isneginf(x).any() else None
+    # nan = ansi_color("NaN!", "red", color) if jnp.isnan(x).any() else None
 
-    attention = sparse_join([zeros,pinf,ninf,nan])
-    numel = f"n={x.size}" if x.size > 5 and max(x.shape) != x.size else None
+    # attention = sparse_join([zeros,pinf,ninf,nan])
 
     summary = None
     if not zeros and x.ndim > 0:
         minmax = f"x∈[{pretty_str(x.min())}, {pretty_str(x.max())}]" if x.size > 2 else None
         meanstd = f"μ={pretty_str(x.mean())} σ={pretty_str(x.std(ddof=ddof))}" if x.size >= 2 else None
-        summary = sparse_join([numel, minmax, meanstd])
+        summary = sparse_join([minmax, meanstd])
 
 
-    return sparse_join([ summary, attention])
+    return sparse_join([ summary, zeros])
 
 # %% ../nbs/00_repr_str.ipynb 14
 def to_str(x: jax.Array,  # Input
@@ -95,6 +94,7 @@ def to_str(x: jax.Array,  # Input
     conf = get_config()
 
     tname = type(x).__name__.split(".")[-1]
+    if tname in ("ArrayImpl"): tname = "Array"
     shape = str(list(x.shape)) if x.ndim else None
     type_str = sparse_join([tname, shape], sep="")
 
@@ -118,7 +118,6 @@ def to_str(x: jax.Array,  # Input
     # grad = "grad" if t.requires_grad else None 
     grad = grad_fn = None
 
-
     # For complex tensors, just show the shape / size part for now.
     if not jnp.iscomplexobj(x):
         if color is None: color=conf.color
@@ -138,24 +137,32 @@ def to_str(x: jax.Array,  # Input
             else:
                 common = jax_to_str_common(x, color=color)
 
+            numel = None
+            if x.shape and max(x.shape) != x.size:
+                numel = f"n={x.size}"
+                if get_config().show_mem_above <= x.nbytes:
+                    numel = sparse_join([numel, f"({bytes_to_human(x.nbytes)})"])
+            elif get_config().show_mem_above <= x.nbytes:
+                numel = bytes_to_human(x.nbytes)
+
             vals = pretty_str(x) if 0 < x.size <= 10 else None
-            res = sparse_join([type_str, dtype, common, grad, grad_fn, dev, vals])
+            res = sparse_join([type_str, dtype, numel, common, grad, grad_fn, dev, vals])
     else:
         res = plain_repr(x)
-
 
     if verbose:
         res += "\n" + plain_repr(x)
 
     if depth and x.ndim > 1:
-        deep_width = min((x.shape[0]), conf.deeper_width) # Print at most this many lines
-        deep_lines = [ " "*conf.indent*(lvl+1) + to_str(x[i,:], depth=depth-1, lvl=lvl+1)
-                            for i in range(deep_width)] 
+        with config(show_mem_above=jnp.inf):
+            deep_width = min((x.shape[0]), conf.deeper_width) # Print at most this many lines
+            deep_lines = [ " "*conf.indent*(lvl+1) + to_str(x[i,:], depth=depth-1, lvl=lvl+1)
+                                for i in range(deep_width)] 
 
-        # If we were limited by width, print ...
-        if deep_width < x.shape[0]: deep_lines.append(" "*conf.indent*(lvl+1) + "...")
+            # If we were limited by width, print ...
+            if deep_width < x.shape[0]: deep_lines.append(" "*conf.indent*(lvl+1) + "...")
 
-        res += "\n" + "\n".join(deep_lines)
+            res += "\n" + "\n".join(deep_lines)
 
     return res
 
