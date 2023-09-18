@@ -71,9 +71,14 @@ def _monkey_patch(cls):
 
 def monkey_patch():
     _monkey_patch(array.ArrayImpl)
-    _monkey_patch(array.DeviceArray)
+    # To support jax version higher than 0.4.14
+    if hasattr(array, "DeviceArray"):
+        _monkey_patch(array.DeviceArray)
 
     # This was required for earlied version of jax 0.4.x
-    if hasattr(jax.pxla, '_ShardedDeviceArray'):
-        _monkey_patch(jax.pxla._ShardedDeviceArray)
+    # In jax version higher than 0.4.14 pxla is not accesible
+    # instead we use jax.interpreters.pxla
+    if not hasattr(jax, "interpreters"):
+        if hasattr(jax.pxla, '_ShardedDeviceArray'):
+            _monkey_patch(jax.pxla._ShardedDeviceArray)
     
