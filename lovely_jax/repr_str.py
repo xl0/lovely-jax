@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = ['jax_to_str_common', 'lovely']
 
-# %% ../nbs/00_repr_str.ipynb 5
+# %% ../nbs/00_repr_str.ipynb
 import warnings
 from typing import Union, Optional as O
 
@@ -16,7 +16,7 @@ from lovely_numpy import config as lnp_config
 from .utils.config import get_config, config
 from .utils.misc import to_numpy, is_cpu, test_array_repr
 
-# %% ../nbs/00_repr_str.ipynb 8
+# %% ../nbs/00_repr_str.ipynb
 dtnames =   {   "float16": "f16",
                 "float32": "", # Default dtype in jax
                 "float64": "f64", 
@@ -34,7 +34,7 @@ dtnames =   {   "float16": "f16",
 def short_dtype(x: jax.Array) -> str:
     return dtnames.get(x.dtype.name, str(x.dtype))
 
-# %% ../nbs/00_repr_str.ipynb 10
+# %% ../nbs/00_repr_str.ipynb
 def plain_repr(x: jax.Array):
     "Pick the right function to get a plain repr"
     # assert isinstance(x, np.ndarray), f"expected np.ndarray but got {type(x)}" # Could be a sub-class.
@@ -45,7 +45,7 @@ def plain_repr(x: jax.Array):
 #     # assert isinstance(x, np.ndarray), f"expected np.ndarray but got {type(x)}"
 #     return x._plain_str() if hasattr(type(x), "_plain_str") else str(x)
 
-# %% ../nbs/00_repr_str.ipynb 11
+# %% ../nbs/00_repr_str.ipynb
 def is_nasty(x: jax.Array):
     """Return true of any `x` values are inf or nan"""
     
@@ -56,7 +56,7 @@ def is_nasty(x: jax.Array):
     
     return jnp.isnan(x_min) or jnp.isinf(x_min) or jnp.isinf(x_max)
 
-# %% ../nbs/00_repr_str.ipynb 13
+# %% ../nbs/00_repr_str.ipynb
 def jax_to_str_common(x: jax.Array,  # Input
                         color=True,                     # ANSI color highlighting
                         ddof=0):                        # For "std" unbiasing
@@ -80,7 +80,7 @@ def jax_to_str_common(x: jax.Array,  # Input
 
     return sparse_join([ summary, zeros])
 
-# %% ../nbs/00_repr_str.ipynb 14
+# %% ../nbs/00_repr_str.ipynb
 def to_str(x: jax.Array,  # Input
             plain: bool=False,
             verbose: bool=False,
@@ -166,14 +166,14 @@ def to_str(x: jax.Array,  # Input
 
     return res
 
-# %% ../nbs/00_repr_str.ipynb 15
+# %% ../nbs/00_repr_str.ipynb
 def history_warning():
     "Issue a warning (once) ifw e are running in IPYthon with output cache enabled"
 
     if "get_ipython" in globals() and get_ipython().cache_size > 0:
         warnings.warn("IPYthon has its output cache enabled. See https://xl0.github.io/lovely-tensors/history.html")
 
-# %% ../nbs/00_repr_str.ipynb 18
+# %% ../nbs/00_repr_str.ipynb
 class StrProxy():
     def __init__(self, x: jax.Array, plain=False, verbose=False, depth=0, lvl=0, color=None):
         self.x = x
@@ -193,7 +193,7 @@ class StrProxy():
     def __call__(self, depth=1):
         return StrProxy(self.x, depth=depth)
 
-# %% ../nbs/00_repr_str.ipynb 19
+# %% ../nbs/00_repr_str.ipynb
 def lovely(x: jax.Array, # Tensor of interest
             verbose=False,  # Whether to show the full tensor
             plain=False,    # Just print if exactly as before

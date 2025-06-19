@@ -3,7 +3,7 @@
 # %% auto 0
 __all__ = []
 
-# %% ../../nbs/03b_utils.misc.ipynb 4
+# %% ../../nbs/03b_utils.misc.ipynb
 import re
 import codecs
 import numpy as np
@@ -11,13 +11,13 @@ import jax, jax.numpy as jnp
 
 from fastcore.test import test_eq
 
-# %% ../../nbs/03b_utils.misc.ipynb 6
+# %% ../../nbs/03b_utils.misc.ipynb
 def to_numpy(t):
     # if t.dtype == jnp.bfloat16:
     return np.array(t, dtype=np.float32)
     # return t
 
-# %% ../../nbs/03b_utils.misc.ipynb 7
+# %% ../../nbs/03b_utils.misc.ipynb
 def is_cpu(x: jax.Array):
 
     if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
@@ -29,7 +29,7 @@ def is_cpu(x: jax.Array):
     return False
 
 
-# %% ../../nbs/03b_utils.misc.ipynb 8
+# %% ../../nbs/03b_utils.misc.ipynb
 def test_array_repr(input: str, template:str):
     # Depending on the jax version, the arrray type can be either "Array" or "DeviceArray".
     # Depending on platform, the default device can be "cpu:0" or "gpu:0" (or, I guess, "tpu:0"?)
