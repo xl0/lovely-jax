@@ -19,7 +19,7 @@ from .utils.misc import to_numpy, is_cpu, test_array_repr
 # %% ../nbs/00_repr_str.ipynb
 dtnames =   {   "float16": "f16",
                 "float32": "", # Default dtype in jax
-                "float64": "f64", 
+                "float64": "f64",
                 "bfloat16": "bf16",
                 "uint8": "u8",
                 "uint16": "u16",
@@ -48,12 +48,12 @@ def plain_repr(x: jax.Array):
 # %% ../nbs/00_repr_str.ipynb
 def is_nasty(x: jax.Array):
     """Return true of any `x` values are inf or nan"""
-    
+
     if x.size == 0: return False # min/max don't like zero-lenght arrays
-    
+
     x_min = x.min()
     x_max = x.max()
-    
+
     return jnp.isnan(x_min) or jnp.isinf(x_min) or jnp.isinf(x_max)
 
 # %% ../nbs/00_repr_str.ipynb
@@ -115,7 +115,7 @@ def to_str(x: jax.Array,  # Input
     # grad_fn = t.grad_fn.name() if t.grad_fn else None
     # PyTorch does not want you to know, but all `grad_fn``
     # tensors actuall have `requires_grad=True`` too.
-    # grad = "grad" if t.requires_grad else None 
+    # grad = "grad" if t.requires_grad else None
     grad = grad_fn = None
 
     # For complex tensors, just show the shape / size part for now.
@@ -157,7 +157,7 @@ def to_str(x: jax.Array,  # Input
         with config(show_mem_above=jnp.inf):
             deep_width = min((x.shape[0]), conf.deeper_width) # Print at most this many lines
             deep_lines = [ " "*conf.indent*(lvl+1) + to_str(x[i,:], depth=depth-1, lvl=lvl+1)
-                                for i in range(deep_width)] 
+                                for i in range(deep_width)]
 
             # If we were limited by width, print ...
             if deep_width < x.shape[0]: deep_lines.append(" "*conf.indent*(lvl+1) + "...")
@@ -183,7 +183,7 @@ class StrProxy():
         self.lvl=lvl
         self.color=color
         history_warning()
-    
+
     def __repr__(self):
         return to_str(self.x, plain=self.plain, verbose=self.verbose,
                       depth=self.depth, lvl=self.lvl, color=self.color)
