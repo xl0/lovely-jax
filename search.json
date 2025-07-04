@@ -1,0 +1,227 @@
+[
+  {
+    "objectID": "matplotlib.html",
+    "href": "matplotlib.html",
+    "title": "🎭 Matplotlib integration",
+    "section": "",
+    "text": ".fig\n.rgb, .chans and .plt all have a .fig attribute that returns a matplotlib figure object.\n\na = numbers.rgb.fig # matplotlib figure\nprint(type(a))\na\n\n&lt;class 'matplotlib.figure.Figure'&gt;\n\n\n\n\n\n\n\n\n\n\nnumbers.chans.fig\n\n\n\n\n\n\n\n\n\nnumbers.plt.fig\n\n\n\n\n\n\n\n\n\nnumbers.plt(center=\"mean\").fig\n\n\n\n\n\n\n\n\n\n\nSaving the figure\nYou can save the figure by calling its savefig method:\n\nnumbers.rgb.fig.savefig(\"tench.jpg\")\n\n\n!file tench.jpg; rm tench.jpg\n\ntench.jpg: JPEG image data, JFIF standard 1.01, resolution (DPI), density 100x100, segment length 16, baseline, precision 8, 196x196, components 3\n\n\n\n\nUsing existing Axes\nAll functions allow an ax= argument that accepts an existing Axes object into which they will plot:\n\nfig = plt.figure(figsize=(8,3))\nfig.set_constrained_layout(True)\ngs = fig.add_gridspec(2,2)\nax1 = fig.add_subplot(gs[0, :])\nax2 = fig.add_subplot(gs[1, 0])\nax3 = fig.add_subplot(gs[1,1:])\n\nax2.set_axis_off()\nax3.set_axis_off()\n\nnumbers.plt(ax=ax1)\nnumbers.rgb(ax=ax2)\nnumbers.chans(ax=ax3);\n\n\n\n\n\n\n\n\n\n\nWithout Jupyter\nBy default, the Lovely functions will call plt.close(fig) on the figures they create.\nThis prevents displaying the figures twice when running in Jupyter.\nIf you are not using Jupyter, here are 2 configuration options you might want to set:\nfig_close=False\n#!/usr/bin/env python\nfrom lovely_jax import config, set_config\n\n...\n\nset_config(fig_close=False)\nnumbers.chans()\n\n# or, using the context manager:\nwith config(fig_close=False):\n    numbers.chans()\n\nplt.show() # Will show all open figures\nfig_show=True\nIf set, lovely will call plt.show() after each figure creation.\nYou don’t need to set fig_close=False manually.\nset_config(fig_show=True)\n\nnumbers.chans() # Figure generated and shown\n\n# Note, you have to use the \"call\" syntax `( )`, as figure\n# generation is not triggerd by just accessing the attribute\n\nnumbers.chans  # No figure generated\n\nf = numbers.plt.fig # figure generated, shown, and returned.\nNote, plt.show() closes all figures.",
+    "crumbs": [
+      "Misc",
+      "🎭 Matplotlib integration"
+    ]
+  },
+  {
+    "objectID": "repr_rgb.html",
+    "href": "repr_rgb.html",
+    "title": "🖌️ View as RGB images",
+    "section": "",
+    "text": "source\n\nrgb\n\n rgb (x:jax.Array, denorm:Any=None, cl:Any=True, gutter_px:int=3,\n      frame_px:int=1, scale:int=1, view_width:int=966,\n      ax:Optional[matplotlib.axes._axes.Axes]=None)\n\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nx\nArray\n\nTensor to display. [[…], C,H,W] or [[…], H,W,C]\n\n\ndenorm\nAny\nNone\nReverse per-channel normalizatoin\n\n\ncl\nAny\nTrue\nChannel-last\n\n\ngutter_px\nint\n3\nIf more than one tensor -&gt; tile with this gutter width\n\n\nframe_px\nint\n1\nIf more than one tensor -&gt; tile with this frame width\n\n\nscale\nint\n1\nScale up. Can’t scale down.\n\n\nview_width\nint\n966\ntarget width of the image\n\n\nax\nOptional\nNone\nUse this Axes\n\n\nReturns\nRGBProxy\n\n\n\n\n\n\nrgb(image)\n\n\n\n\n\n\n\n\n\nrgb(image, scale=2)\n\n\n\n\n\n\n\n\n\ntwo_images = jnp.stack([image]*2)\ntwo_images\n\nArray[2, 196, 196, 3] n=230496 x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0\n\n\n\nin_stats = (    (0.485, 0.456, 0.406),  # Mean\n                (0.229, 0.224, 0.225) ) # std\nrgb(two_images, denorm=in_stats)\n\n\n\n\n\n\n\n\n\n# Make 8 images with progressively higher brightness and stack them 2x2x2.\n\neight_images = (jnp.stack([image]*8) + jnp.linspace(-2, 2, 8)[:,None,None,None])\neight_images = (eight_images\n                     *jnp.array(in_stats[1])\n                     +jnp.array(in_stats[0])\n                ).clip(0,1).reshape(2,2,2,196,196,3)\n\neight_images\n\nArray[2, 2, 2, 196, 196, 3] n=921984 x∈[0., 1.000] μ=0.382 σ=0.319 cpu:0\n\n\n\nrgb(eight_images)\n\n\n\n\n\n\n\n\n\n# You can do channel-last too:\nrgb(image.transpose(2, 0, 1), cl=False)",
+    "crumbs": [
+      "Data representations",
+      "🖌️ View as RGB images"
+    ]
+  },
+  {
+    "objectID": "patch.html",
+    "href": "patch.html",
+    "title": "🙈 Monkey-patching",
+    "section": "",
+    "text": "source\n\nmonkey_patch\n\n monkey_patch ()\n\n\nmonkey_patch()\n\n\nimage = jnp.load(\"mysteryman.npy\").transpose(1,2,0)\n\n\nspicy = image[0,:12,0].copy()\n\nspicy = (spicy  .at[0].mul(10000)\n                .at[1].divide(10000)\n                .at[2].set(float('inf'))\n                .at[3].set(float('-inf'))\n                .at[4].set(float('nan'))\n                .reshape((2,6)))\n\nspicy\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -3.369e-05] μ=-393.776 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\n\n\n\n\nspicy.v # Verbose\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -3.369e-05] μ=-393.776 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\nArray([[-3.5405432e+03, -3.3692955e-05,            inf,           -inf,\n                   nan, -4.0542859e-01],\n       [-4.2255333e-01, -4.9105233e-01, -5.0817710e-01, -5.5955136e-01,\n        -5.4242659e-01, -5.0817710e-01]], dtype=float32)\n\n\n\n\nspicy.p # Plain\n\nArray([[-3.5405432e+03, -3.3692955e-05,            inf,           -inf,\n                   nan, -4.0542859e-01],\n       [-4.2255333e-01, -4.9105233e-01, -5.0817710e-01, -5.5955136e-01,\n        -5.4242659e-01, -5.0817710e-01]], dtype=float32)\n\n\n\nimage.deeper\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0\n  Array[196, 3] n=588 x∈[-1.912, 2.411] μ=-0.728 σ=0.519 cpu:0\n  Array[196, 3] n=588 x∈[-1.861, 2.359] μ=-0.778 σ=0.450 cpu:0\n  Array[196, 3] n=588 x∈[-1.758, 2.379] μ=-0.838 σ=0.437 cpu:0\n  Array[196, 3] n=588 x∈[-1.656, 2.466] μ=-0.878 σ=0.415 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.448] μ=-0.882 σ=0.399 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.431] μ=-0.905 σ=0.408 cpu:0\n  Array[196, 3] n=588 x∈[-1.563, 2.448] μ=-0.859 σ=0.416 cpu:0\n  Array[196, 3] n=588 x∈[-1.475, 2.431] μ=-0.791 σ=0.463 cpu:0\n  Array[196, 3] n=588 x∈[-1.526, 2.429] μ=-0.759 σ=0.499 cpu:0\n  ...\n\n\n\ndt = image[:3,:5,:3]\ndt.deeper(3)\n\nArray[3, 5, 3] n=45 x∈[-1.316, -0.197] μ=-0.593 σ=0.302 cpu:0\n  Array[5, 3] n=15 x∈[-0.985, -0.197] μ=-0.491 σ=0.267 cpu:0\n    Array[3] x∈[-0.672, -0.197] μ=-0.408 σ=0.197 cpu:0 [-0.354, -0.197, -0.672]\n    Array[3] x∈[-0.985, -0.197] μ=-0.507 σ=0.343 cpu:0 [-0.337, -0.197, -0.985]\n    Array[3] x∈[-0.881, -0.303] μ=-0.530 σ=0.252 cpu:0 [-0.405, -0.303, -0.881]\n    Array[3] x∈[-0.776, -0.303] μ=-0.506 σ=0.199 cpu:0 [-0.440, -0.303, -0.776]\n    Array[3] x∈[-0.916, -0.215] μ=-0.506 σ=0.298 cpu:0 [-0.388, -0.215, -0.916]\n  Array[5, 3] n=15 x∈[-1.212, -0.232] μ=-0.609 σ=0.302 cpu:0\n    Array[3] x∈[-0.724, -0.250] μ=-0.460 σ=0.197 cpu:0 [-0.405, -0.250, -0.724]\n    Array[3] x∈[-1.072, -0.232] μ=-0.576 σ=0.360 cpu:0 [-0.423, -0.232, -1.072]\n    Array[3] x∈[-0.968, -0.338] μ=-0.599 σ=0.268 cpu:0 [-0.491, -0.338, -0.968]\n    Array[3] x∈[-0.968, -0.408] μ=-0.651 σ=0.235 cpu:0 [-0.577, -0.408, -0.968]\n    Array[3] x∈[-1.212, -0.408] μ=-0.761 σ=0.336 cpu:0 [-0.662, -0.408, -1.212]\n  Array[5, 3] n=15 x∈[-1.316, -0.285] μ=-0.677 σ=0.306 cpu:0\n    Array[3] x∈[-0.828, -0.303] μ=-0.535 σ=0.219 cpu:0 [-0.474, -0.303, -0.828]\n    Array[3] x∈[-1.125, -0.285] μ=-0.628 σ=0.360 cpu:0 [-0.474, -0.285, -1.125]\n    Array[3] x∈[-1.020, -0.390] μ=-0.651 σ=0.268 cpu:0 [-0.542, -0.390, -1.020]\n    Array[3] x∈[-1.003, -0.478] μ=-0.708 σ=0.219 cpu:0 [-0.645, -0.478, -1.003]\n    Array[3] x∈[-1.316, -0.513] μ=-0.865 σ=0.336 cpu:0 [-0.765, -0.513, -1.316]\n\n\n\nimage.rgb\n\n\n\n\n\n\n\n\n\nin_stats = ( (0.485, 0.456, 0.406),     # mean \n             (0.229, 0.224, 0.225) )    # std\nimage.rgb(in_stats)\n\n\n\n\n\n\n\n\n\n(image*0.3+0.5) # Slightly outside of [0, 1] range\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[-0.135, 1.292] μ=0.384 σ=0.322 cpu:0\n\n\n\n(image*0.3+0.5).chans # shows clipping (bright blue/red)\n\n\n\n\n\n\n\n\n\nimage.plt\n\n\n\n\n\n\n\n\n\nimage.plt(center=\"mean\")\n\n\n\n\n\n\n\n\n\nfig, ax = plt.subplots(figsize=(6, 2))\nplt.close(fig)\nimage.plt(ax=ax)\nfig",
+    "crumbs": [
+      "Misc",
+      "🙈 Monkey-patching"
+    ]
+  },
+  {
+    "objectID": "03b_utils.misc.html",
+    "href": "03b_utils.misc.html",
+    "title": "🧂 Misc utils",
+    "section": "",
+    "text": "test_array_repr(\"DeviceArray[2] μ=-0.466 σ=1.515 [-1.981, 1.048]\",\n                \"Array[2] μ=-0.466 gpu:0 σ=1.515 [-1.981, 1.048]\")\n\n\nbf16 = jnp.ones((10,10,3), dtype=jnp.bfloat16)\nbf16\n\nArray[10, 10, 3] bf16 n=300 x∈[1.000, 1.000] μ=0.852 σ=0.149 cpu:0\n\n\n\nbf16.plt\n\n\n\n\n\n\n\n\n\nbf16.rgb\n\n\n\n\n\n\n\n\n\nbf16.chans\n\n\n\n\n\n\n\n\n\n# key = jax.random.PRNGKey(0)\n\n# cpu = jax.devices(\"cpu\")[0]\n\n# x1 = jax.device_put(jax.random.normal(key, (1024, 1024)), cpu)\n# x2 = jax.device_put(jax.random.normal(key, (1024, 1024)), cpu)\n\n# %timeit np.dot(np.array(x1), np.array(x2))"
+  },
+  {
+    "objectID": "utils.config.html",
+    "href": "utils.config.html",
+    "title": "🤔 Config",
+    "section": "",
+    "text": "Type\nDefault\nDetails\n\n\n\n\nprecision\nint\n3\nDigits after .\n\n\nthreshold_max\nint\n3\n.abs() larger than 1e3 -&gt; Sci mode\n\n\nthreshold_min\nint\n-4\n.abs() smaller that 1e-4 -&gt; Sci mode\n\n\nsci_mode\nNoneType\nNone\nSci mode (2.3e4). None=auto\n\n\nshow_mem_above\nint\n1024\nShow memory footprint above this size\n\n\nindent\nint\n2\nIndent for .deeper()\n\n\ncolor\nbool\nTrue\nANSI colors in text\n\n\ndeeper_width\nint\n9\nFor .deeper, width per level\n\n\nplt_seed\nint\n42\nSampling seed for plot\n\n\nfig_close\nbool\nTrue\nClose matplotlib Figure\n\n\nfig_show\nbool\nFalse\nCall plt.show() for .plt, .chans and .rgb\n\n\n\n\n\n\nsource",
+    "crumbs": [
+      "Misc",
+      "🤔 Config"
+    ]
+  },
+  {
+    "objectID": "utils.config.html#examples",
+    "href": "utils.config.html#examples",
+    "title": "🤔 Config",
+    "section": "Examples",
+    "text": "Examples\n\nimport jax.numpy as jnp\nfrom lovely_jax import set_config, get_config, config, monkey_patch\n\n\nmonkey_patch()\n\n\nPrecision\n\nset_config(precision=5)\njnp.array([1., 2, jnp.nan])\n\n\nArray[3] μ=1.50000 σ=0.50000 NaN! cpu:0 [1.00000, 2.00000, nan]\n\n\n\n\njnp.array([1., 2, jnp.nan])\n\n\nArray[3] μ=1.50000 σ=0.50000 NaN! cpu:0 [1.00000, 2.00000, nan]\n\n\n\n\n\nScientific mode\n\nset_config(sci_mode=True) # Force always on\nstr(jnp.array([1., 2, jnp.nan]))\n\n'Array[3] μ=1.50000e+00 σ=5.00000e-01 \\x1b[31mNaN!\\x1b[0m cpu:0 [1.00000e+00, 2.00000e+00, nan]'\n\n\n\n\nColor on/off\n\nset_config(color=False) # Force always off\njnp.array([1., 2, jnp.nan])\n\nArray[3] μ=1.50000e+00 σ=5.00000e-01 NaN! cpu:0 [1.00000e+00, 2.00000e+00, nan]\n\n\n\ntest_array_repr(str(jnp.array([1., 2, jnp.nan])),\n        'Array[3] μ=1.50000e+00 σ=5.00000e-01 NaN! gpu:0 [1.00000e+00, 2.00000e+00, nan]')\n\n\n\nControl .deeper\n\nset_config(deeper_width=3) \nimage = jnp.load(\"mysteryman.npy\")\nimage = image.at[1,100,100].set(jnp.nan)\n\nimage.deeper(2)\n\nArray[3, 196, 196] n=115248 (0.4Mb) x∈[-2.11790e+00, 2.64000e+00] μ=-3.88310e-01 σ=1.07318e+00 NaN! cpu:0\n  Array[196, 196] n=38416 x∈[-2.11790e+00, 2.24891e+00] μ=-3.24352e-01 σ=1.03586e+00 cpu:0\n    Array[196] x∈[-1.91241e+00, 2.24891e+00] μ=-6.73483e-01 σ=5.20629e-01 cpu:0\n    Array[196] x∈[-1.86103e+00, 2.16328e+00] μ=-7.38488e-01 σ=4.17012e-01 cpu:0\n    Array[196] x∈[-1.75828e+00, 2.19753e+00] μ=-8.05501e-01 σ=3.95835e-01 cpu:0\n    ...\n  Array[196, 196] n=38416 x∈[-1.96569e+00, 2.42857e+00] μ=-2.73903e-01 σ=9.72652e-01 NaN! cpu:0\n    Array[196] x∈[-1.86064e+00, 2.41106e+00] μ=-5.28772e-01 σ=5.54540e-01 cpu:0\n    Array[196] x∈[-1.82563e+00, 2.35854e+00] μ=-5.61732e-01 σ=4.71564e-01 cpu:0\n    Array[196] x∈[-1.75560e+00, 2.37605e+00] μ=-6.21756e-01 σ=4.57265e-01 cpu:0\n    ...\n  Array[196, 196] n=38416 x∈[-1.80444e+00, 2.64000e+00] μ=-5.66674e-01 σ=1.17775e+00 cpu:0\n    Array[196] x∈[-1.71730e+00, 2.39599e+00] μ=-9.81537e-01 σ=3.49106e-01 cpu:0\n    Array[196] x∈[-1.75216e+00, 2.32627e+00] μ=-1.03418e+00 σ=3.13168e-01 cpu:0\n    Array[196] x∈[-1.64758e+00, 2.37856e+00] μ=-1.08647e+00 σ=3.13411e-01 cpu:0\n    ...\n\n\n\ntest_eq(len(str(image.deeper(2))), 1127)\n\n\n\nReser to defaults\n\nset_config(precision=None, sci_mode=None, color=None, deeper_width=None)\nstr(jnp.array([1., 2, jnp.nan]))\n\n'Array[3] μ=1.500 σ=0.500 \\x1b[31mNaN!\\x1b[0m cpu:0 [1.000, 2.000, nan]'\n\n\n\ntest_array_repr(str(jnp.array([1., 2, jnp.nan])),\n    'Array[3] μ=1.500 σ=0.500 \\x1b[31mNaN!\\x1b[0m gpu:0 [1.000, 2.000, nan]')\n\n\n\nContext manager\n\ndisplay(jnp.array([1., 2, jnp.nan]))\nwith config(sci_mode=True, color=False):\n    display(jnp.array([1., 2, jnp.nan]))\ndisplay(jnp.array([1., 2, jnp.nan]))\n\n\nArray[3] μ=1.500 σ=0.500 NaN! cpu:0 [1.000, 2.000, nan]\n\n\n\nArray[3] μ=1.500e+00 σ=5.000e-01 NaN! cpu:0 [1.000e+00, 2.000e+00, nan]\n\n\n\nArray[3] μ=1.500 σ=0.500 NaN! cpu:0 [1.000, 2.000, nan]\n\n\n\n\n\nMatplotlib and seed\n\n# torch.manual_seed(42)\n# a = torch.randn(1000)\n\nkey = jax.random.PRNGKey(0)\na = jax.random.normal(key, (1000,))\n\n\n_ = a.plt() # The figure was closed, nothing is displayed\n\n\nset_config(fig_close=False)\n_ = a.plt() # figure was not closed. All figures that are not closed are displayed after the cell runs.\n\n\n\n\n\n\n\n\nFor performance reasons, .plt will randomly sample up tp max_s elements from the data (10k be default).\nYou can change the seed used for this sampling (42 by default):\n\nset_config(plt_seed=1)\na.plt(max_s=100)\n\n\n\n\n\n\n\n\n\nset_config(plt_seed=2)\na.plt(max_s=100)\n\n\n\n\n\n\n\n\nMore details in matplotlib",
+    "crumbs": [
+      "Misc",
+      "🤔 Config"
+    ]
+  },
+  {
+    "objectID": "repr_str.html",
+    "href": "repr_str.html",
+    "title": "🧾 View as a summary",
+    "section": "",
+    "text": "spicy = (randoms[:12].at[0].mul(10000)\n                    .at[1].divide(10000)\n                    .at[3].set(float('inf'))\n                    .at[4].set(float('-inf'))\n                    .at[5].set(float('nan'))\n                    .reshape((2,6)))\n\n\nsource\n\njax_to_str_common\n\n jax_to_str_common (x:jax.Array, color=True, ddof=0)\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nx\nArray\n\nInput\n\n\ncolor\nbool\nTrue\nANSI color highlighting\n\n\nddof\nint\n0\nFor “std” unbiasing\n\n\n\n\nsource\n\n\nlovely\n\n lovely (x:jax.Array, verbose=False, plain=False, depth=0, color=None)\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nx\nArray\n\nTensor of interest\n\n\nverbose\nbool\nFalse\nWhether to show the full tensor\n\n\nplain\nbool\nFalse\nJust print if exactly as before\n\n\ndepth\nint\n0\nShow stats in depth\n\n\ncolor\nNoneType\nNone\nForce color (True/False) or auto.\n\n\n\n\n\nExamples\n\nprint(lovely(randoms[0]))\nprint(lovely(randoms[:2]))\nprint(lovely(randoms[:6].reshape((2, 3)))) # More than 2 elements -&gt; show statistics\nprint(lovely(randoms[:11]))           # More than 10 -&gt; suppress data output\n\nArray cpu:0 1.623\nArray[2] μ=1.824 σ=0.201 cpu:0 [1.623, 2.025]\nArray[2, 3] n=6 x∈[-0.972, 2.025] μ=0.390 σ=1.080 cpu:0 [[1.623, 2.025, -0.434], [-0.079, 0.176, -0.972]]\nArray[11] x∈[-0.972, 2.180] μ=0.385 σ=1.081 cpu:0\n\n\n\ngrad = jnp.array(1., dtype=jnp.float16)\nprint(lovely(grad)); print(lovely(grad+1))\n\nArray f16 cpu:0 1.000\nArray f16 cpu:0 2.000\n\n\n\n# if torch.cuda.is_available():\n#     print(lovely(torch.tensor(1., device=torch.device(\"cuda:0\"))))\n#     test_eq(str(lovely(torch.tensor(1., device=torch.device(\"cuda:0\")))), \"tensor cuda:0 1.000\")\n\nDo we have any floating point nasties? Is the tensor all zeros?\n\n# Statistics and range are calculated on good values only, if there are at lest 3 of them.\nlovely(spicy)\n\n\nArray[2, 6] n=12 x∈[-1.955, 1.623e+04] μ=1.803e+03 σ=5.099e+03 +Inf! -Inf! NaN! cpu:0\n\n\n\n\nlovely(spicy, color=False)\n\nArray[2, 6] n=12 x∈[-1.955, 1.623e+04] μ=1.803e+03 σ=5.099e+03 +Inf! -Inf! NaN! cpu:0\n\n\n\nstr(lovely(jnp.array([float(\"nan\")]*11)))\n\n'Array[11] \\x1b[31mNaN!\\x1b[0m cpu:0'\n\n\n\nlovely(jnp.zeros(12))\n\n\nArray[12] all_zeros cpu:0\n\n\n\n\nlovely(jnp.array([], dtype=jnp.float16).reshape((0,0,0)))\n\n\nArray[0, 0, 0] f16 empty cpu:0\n\n\n\n\nlovely(jnp.array([1,2,3], dtype=jnp.int32))\n\nArray[3] i32 x∈[1, 3] μ=2.000 σ=0.816 cpu:0 [1, 2, 3]\n\n\n\njnp.set_printoptions(linewidth=120, precision=2)\nlovely(spicy, verbose=True)\n\n\nArray[2, 6] n=12 x∈[-1.955, 1.623e+04] μ=1.803e+03 σ=5.099e+03 +Inf! -Inf! NaN! cpu:0\nArray([[ 1.62e+04,  2.03e-04, -4.34e-01,       inf,      -inf,       nan],\n       [-4.95e-01,  4.94e-01,  6.64e-01, -9.50e-01,  2.18e+00, -1.96e+00]], dtype=float32)\n\n\n\n\nlovely(spicy, plain=True)\n\nArray([[ 1.62e+04,  2.03e-04, -4.34e-01,       inf,      -inf,       nan],\n       [-4.95e-01,  4.94e-01,  6.64e-01, -9.50e-01,  2.18e+00, -1.96e+00]], dtype=float32)\n\n\n\nimage = jnp.load(\"mysteryman.npy\")\nimage = image.at[1,2,3].set(float('nan'))\n\nlovely(image, depth=2) # Limited by set_config(deeper_lines=N)\n\n\nArray[3, 196, 196] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 NaN! cpu:0\n  Array[196, 196] n=38416 x∈[-2.118, 2.249] μ=-0.324 σ=1.036 cpu:0\n    Array[196] x∈[-1.912, 2.249] μ=-0.673 σ=0.521 cpu:0\n    Array[196] x∈[-1.861, 2.163] μ=-0.738 σ=0.417 cpu:0\n    Array[196] x∈[-1.758, 2.198] μ=-0.806 σ=0.396 cpu:0\n    Array[196] x∈[-1.656, 2.249] μ=-0.849 σ=0.368 cpu:0\n    Array[196] x∈[-1.673, 2.198] μ=-0.857 σ=0.356 cpu:0\n    Array[196] x∈[-1.656, 2.146] μ=-0.848 σ=0.371 cpu:0\n    Array[196] x∈[-1.433, 2.215] μ=-0.784 σ=0.396 cpu:0\n    Array[196] x∈[-1.279, 2.249] μ=-0.695 σ=0.485 cpu:0\n    Array[196] x∈[-1.364, 2.249] μ=-0.637 σ=0.538 cpu:0\n    ...\n  Array[196, 196] n=38416 x∈[-1.966, 2.429] μ=-0.274 σ=0.973 NaN! cpu:0\n    Array[196] x∈[-1.861, 2.411] μ=-0.529 σ=0.555 cpu:0\n    Array[196] x∈[-1.826, 2.359] μ=-0.562 σ=0.472 cpu:0\n    Array[196] x∈[-1.756, 2.376] μ=-0.622 σ=0.458 NaN! cpu:0\n    Array[196] x∈[-1.633, 2.429] μ=-0.664 σ=0.429 cpu:0\n    Array[196] x∈[-1.651, 2.376] μ=-0.669 σ=0.398 cpu:0\n    Array[196] x∈[-1.633, 2.376] μ=-0.701 σ=0.390 cpu:0\n    Array[196] x∈[-1.563, 2.429] μ=-0.670 σ=0.379 cpu:0\n    Array[196] x∈[-1.475, 2.429] μ=-0.616 σ=0.385 cpu:0\n    Array[196] x∈[-1.511, 2.429] μ=-0.593 σ=0.398 cpu:0\n    ...\n  Array[196, 196] n=38416 x∈[-1.804, 2.640] μ=-0.567 σ=1.178 cpu:0\n    Array[196] x∈[-1.717, 2.396] μ=-0.982 σ=0.349 cpu:0\n    Array[196] x∈[-1.752, 2.326] μ=-1.034 σ=0.313 cpu:0\n    Array[196] x∈[-1.648, 2.379] μ=-1.086 σ=0.313 cpu:0\n    Array[196] x∈[-1.630, 2.466] μ=-1.121 σ=0.304 cpu:0\n    Array[196] x∈[-1.717, 2.448] μ=-1.120 σ=0.301 cpu:0\n    Array[196] x∈[-1.717, 2.431] μ=-1.166 σ=0.313 cpu:0\n    Array[196] x∈[-1.560, 2.448] μ=-1.124 σ=0.325 cpu:0\n    Array[196] x∈[-1.421, 2.431] μ=-1.064 σ=0.382 cpu:0\n    Array[196] x∈[-1.526, 2.396] μ=-1.047 σ=0.416 cpu:0\n    ...\n\n\n\n\n# We don't really supposed complex numbers yet\nc = jnp.array([-0.4011-0.4035j,  1.1300+0.0788j, -0.0277+0.9978j, -0.4636+0.6064j, -1.1505-0.9865j])\nlovely(c)\n\nArray([-0.4 -0.4j ,  1.13+0.08j, -0.03+1.j  , -0.46+0.61j, -1.15-0.99j], dtype=complex64)\n\n\n\nassert jax.__version_info__[0] == 0\nif jax.__version_info__[1] &gt;= 4:\n    from jax.sharding import PositionalSharding\n    from jax.experimental import mesh_utils\n    sharding = PositionalSharding(mesh_utils.create_device_mesh((8,1)))\n    x = jax.random.normal(jax.random.PRNGKey(0), (8192, 8192))\n    y = jax.device_put(x, sharding)\n\n    jax.debug.visualize_array_sharding(y)\nelse:\n    # Note: Looks like ShardedDeviceArray needs an explicit device axis?\n    x = jax.random.normal(jax.random.PRNGKey(0), (8, 1024, 8192))\n    y = jax.device_put_sharded([x for x in x], jax.devices())\n\nprint(lovely(x))\nprint(lovely(y))\n\n/tmp/ipykernel_487548/3921189633.py:4: DeprecationWarning: jax.sharding.PositionalSharding is deprecated. Use jax.NamedSharding instead.\n  from jax.sharding import PositionalSharding\n\n\n          CPU 0          \n                         \n          CPU 1          \n                         \n          CPU 2          \n                         \n          CPU 3          \n                         \n          CPU 4          \n                         \n          CPU 5          \n                         \n          CPU 6          \n                         \n          CPU 7          \n                         \n\n\n\nArray[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=1.508e-05 σ=1.000 cpu:0\nArray[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=1.508e-05 σ=1.000 cpu:0,1,2,3,4,5,6,7",
+    "crumbs": [
+      "Data representations",
+      "🧾 View as a summary"
+    ]
+  },
+  {
+    "objectID": "repr_chans.html",
+    "href": "repr_chans.html",
+    "title": "📺 View channels",
+    "section": "",
+    "text": "source\n\nchans\n\n chans (x:jax.Array, cmap:str='twilight', cm_below:str='blue',\n        cm_above:str='red', cm_ninf:str='cyan', cm_pinf:str='fuchsia',\n        cm_nan:str='yellow', view_width:int=966, gutter_px:int=3,\n        frame_px:int=1, scale:int=1, cl:Any=True,\n        ax:Optional[matplotlib.axes._axes.Axes]=None)\n\nMap tensor values to colors. RGB[A] color is added as channel-last\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nx\nArray\n\nInput, shape=([…], H, W)\n\n\ncmap\nstr\ntwilight\nUse matplotlib colormap by this name\n\n\ncm_below\nstr\nblue\nColor for values below -1\n\n\ncm_above\nstr\nred\nColor for values above 1\n\n\ncm_ninf\nstr\ncyan\nColor for -inf values\n\n\ncm_pinf\nstr\nfuchsia\nColor for +inf values\n\n\ncm_nan\nstr\nyellow\nColor for NaN values\n\n\nview_width\nint\n966\nTry to produce an image at most this wide\n\n\ngutter_px\nint\n3\nDraw write gutters when tiling the images\n\n\nframe_px\nint\n1\nDraw black frame around each image\n\n\nscale\nint\n1\n\n\n\ncl\nAny\nTrue\n\n\n\nax\nOptional\nNone\n\n\n\nReturns\nChanProxy\n\n\n\n\n\n\nin_stats = ( (0.485, 0.456, 0.406), (0.229, 0.224, 0.225) )\n\nimage = jnp.load(\"mysteryman.npy\").transpose(1,2,0)\nimage = (image * jnp.array(in_stats[1]))\nimage += jnp.array(in_stats[0])\n\nimage.rgb\n\n\n\n\n\n\n\n\n\nchans(image)\n\n\n\n\n\n\n\n\n\n# In R\nimage = image.at[0:32,32:64:,0].set(-1.1) # Below min\nimage = image.at[0:32,96:128,0].set(1.1) # Above max\n# In G\nimage = image.at[0:32,64:96,1].set(float(\"nan\"))\n# In B\nimage = image.at[0:32,0:32,2].set(float(\"-inf\"))\nimage = image.at[0:32,128:128+32,2].set(float(\"+inf\"))\n\nchans(image, cmap=\"viridis\", cm_below=\"black\", cm_above=\"white\")\n\n/ssd/xl0/work/projects/lovely-numpy/lovely_numpy/utils/colormap.py:64: RuntimeWarning: invalid value encountered in cast\n  lut_idxs = (vals * cmax).astype(np.int64)\n\n\n\n\n\n\n\n\n\n\n# 4 images, stacked 2x2\nchans(jnp.stack([image]*4).reshape(2,2,196,196,3))\n\n\n\n\n\n\n\n\n\n# # |hide\n# if torch.cuda.is_available():\n#     cudamem = torch.cuda.memory_allocated()\n#     print(f\"before allocation: {torch.cuda.memory_allocated()=}\")\n#     numbers = torch.ones((2,64, 512), device=\"cuda\")\n#     torch.cuda.synchronize()\n#     print(f\"after allocation: {torch.cuda.memory_allocated()=}\")\n#     display(chans(numbers))\n#     print(f\"after rgb: {torch.cuda.memory_allocated()=}\")\n   \n#     del numbers\n#     gc.collect()\n#     # torch.cuda.memory.empty_cache()\n#     # torch.cuda.synchronize()\n\n#     print(f\"after cleanup: {torch.cuda.memory_allocated()=}\")\n#     test_eq(cudamem &gt;= torch.cuda.memory_allocated(), True)",
+    "crumbs": [
+      "Data representations",
+      "📺 View channels"
+    ]
+  },
+  {
+    "objectID": "repr_plt.html",
+    "href": "repr_plt.html",
+    "title": "📊 View as a histogram",
+    "section": "",
+    "text": "source\n\nplot\n\n plot (x:jax.Array, center:str='zero', max_s:int=10000, plt0:Any=True,\n       ax:Optional[matplotlib.axes._axes.Axes]=None)\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nx\nArray\n\nTensor to explore\n\n\ncenter\nstr\nzero\nCenter plot on zero, mean, or range\n\n\nmax_s\nint\n10000\nDraw up to this many samples. =0 to draw all\n\n\nplt0\nAny\nTrue\nTake zero values into account\n\n\nax\nOptional\nNone\nOptionally provide a matplotlib axes.\n\n\nReturns\nPlotProxy\n\n\n\n\n\n\nkey = jax.random.PRNGKey(0)\nt = jax.random.normal(key, (1000000,))+3\n\nplot(t)\n\n\n\n\n\n\n\n\n\nplot(t, center=\"range\")\n\n\n\n\n\n\n\n\n\nplot(t, center=\"mean\")\n\n\n\n\n\n\n\n\n\nplot(jnp.maximum(t-3, 0))\n\n\n\n\n\n\n\n\n\nplot(jnp.maximum(t-3, 0), plt0=False)\n\n\n\n\n\n\n\n\n\nfig, ax, = plt.subplots(figsize=(6, 2))\nfig.tight_layout()\nplot(t, ax=ax);\n\n\n\n\n\n\n\n\n\n# # |hide\n# import gc",
+    "crumbs": [
+      "Data representations",
+      "📊 View as a histogram"
+    ]
+  },
+  {
+    "objectID": "index.html#note-im-pretty-new-to-jax",
+    "href": "index.html#note-im-pretty-new-to-jax",
+    "title": "💘 Lovely JAX",
+    "section": "Note: I’m pretty new to JAX",
+    "text": "Note: I’m pretty new to JAX\nIf something does not make sense, shoot me an Issue or ping me on Discord and let me know how it’s supposed to work!\nBetter support for sharded arrays and solid jit/pmap/vmap support coming soon!",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "💘 Lovely JAX",
+    "section": "Install",
+    "text": "Install\npip install lovely-jax",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "💘 Lovely JAX",
+    "section": "How to use",
+    "text": "How to use\nHow often do you find yourself debugging JAX code? You dump an array to the cell output, and see this:\n\nnumbers\n\nArray([[[-0.354, -0.337, -0.405, ..., -0.56 , -0.474,  2.249],\n        [-0.405, -0.423, -0.491, ..., -0.919, -0.851,  2.163],\n        [-0.474, -0.474, -0.542, ..., -1.039, -1.039,  2.198],\n        ...,\n        [-0.902, -0.834, -0.936, ..., -1.467, -1.296,  2.232],\n        [-0.851, -0.782, -0.936, ..., -1.604, -1.501,  2.18 ],\n        [-0.834, -0.816, -0.971, ..., -1.656, -1.553,  2.112]],\n\n       [[-0.197, -0.197, -0.303, ..., -0.478, -0.373,  2.411],\n        [-0.25 , -0.232, -0.338, ..., -0.705, -0.67 ,  2.359],\n        [-0.303, -0.285, -0.39 , ..., -0.74 , -0.81 ,  2.376],\n        ...,\n        [-0.425, -0.232, -0.373, ..., -1.09 , -1.02 ,  2.429],\n        [-0.39 , -0.232, -0.425, ..., -1.23 , -1.23 ,  2.411],\n        [-0.408, -0.285, -0.478, ..., -1.283, -1.283,  2.341]],\n\n       [[-0.672, -0.985, -0.881, ..., -0.968, -0.689,  2.396],\n        [-0.724, -1.072, -0.968, ..., -1.247, -1.02 ,  2.326],\n        [-0.828, -1.125, -1.02 , ..., -1.264, -1.16 ,  2.379],\n        ...,\n        [-1.229, -1.473, -1.386, ..., -1.508, -1.264,  2.518],\n        [-1.194, -1.456, -1.421, ..., -1.648, -1.473,  2.431],\n        [-1.229, -1.526, -1.508, ..., -1.682, -1.526,  2.361]]], dtype=float32)\n\n\nWas it really useful for you, as a human, to see all these numbers?\nWhat is the shape? The size?\nWhat are the statistics?\nAre any of the values nan or inf?\nIs it an image of a man holding a tench?\n\nimport lovely_jax as lj\n\n\nlj.monkey_patch()",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#summary",
+    "href": "index.html#summary",
+    "title": "💘 Lovely JAX",
+    "section": "Summary",
+    "text": "Summary\n\nnumbers\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0\n\n\nBetter, huh?\n\nnumbers[1,:6,1] # Still shows values if there are not too many.\n\nArray[6] x∈[-0.408, -0.232] μ=-0.340 σ=0.075 cpu:0 [-0.250, -0.232, -0.338, -0.408, -0.408, -0.408]\n\n\n\nspicy = numbers.flatten()[:12].copy()\n\nspicy = (spicy  .at[0].mul(10000)\n                .at[1].divide(10000)\n                .at[2].set(float('inf'))\n                .at[3].set(float('-inf'))\n                .at[4].set(float('nan'))\n                .reshape((2,6)))\nspicy # Spicy stuff\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\n\n\n\n\njnp.zeros((10, 10)) # A zero array - make it obvious\n\n\nArray[10, 10] n=100 all_zeros cpu:0\n\n\n\n\nspicy.v # Verbose\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\nArray([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],\n       [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)\n\n\n\n\nspicy.p # The plain old way\n\nArray([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],\n       [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#going-.deeper",
+    "href": "index.html#going-.deeper",
+    "title": "💘 Lovely JAX",
+    "section": "Going .deeper",
+    "text": "Going .deeper\n\nnumbers.deeper\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0\n  Array[196, 3] n=588 x∈[-1.912, 2.411] μ=-0.728 σ=0.519 cpu:0\n  Array[196, 3] n=588 x∈[-1.861, 2.359] μ=-0.778 σ=0.450 cpu:0\n  Array[196, 3] n=588 x∈[-1.758, 2.379] μ=-0.838 σ=0.437 cpu:0\n  Array[196, 3] n=588 x∈[-1.656, 2.466] μ=-0.878 σ=0.415 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.448] μ=-0.882 σ=0.399 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.431] μ=-0.905 σ=0.408 cpu:0\n  Array[196, 3] n=588 x∈[-1.563, 2.448] μ=-0.859 σ=0.416 cpu:0\n  Array[196, 3] n=588 x∈[-1.475, 2.431] μ=-0.791 σ=0.463 cpu:0\n  Array[196, 3] n=588 x∈[-1.526, 2.429] μ=-0.759 σ=0.499 cpu:0\n  ...\n\n\n\n# You can go deeper if you need to\nnumbers[:3,:5,:3].deeper(2)\n\nArray[3, 5, 3] n=45 x∈[-1.316, -0.197] μ=-0.593 σ=0.302 cpu:0\n  Array[5, 3] n=15 x∈[-0.985, -0.197] μ=-0.491 σ=0.267 cpu:0\n    Array[3] x∈[-0.672, -0.197] μ=-0.408 σ=0.197 cpu:0 [-0.354, -0.197, -0.672]\n    Array[3] x∈[-0.985, -0.197] μ=-0.507 σ=0.343 cpu:0 [-0.337, -0.197, -0.985]\n    Array[3] x∈[-0.881, -0.303] μ=-0.530 σ=0.252 cpu:0 [-0.405, -0.303, -0.881]\n    Array[3] x∈[-0.776, -0.303] μ=-0.506 σ=0.199 cpu:0 [-0.440, -0.303, -0.776]\n    Array[3] x∈[-0.916, -0.215] μ=-0.506 σ=0.298 cpu:0 [-0.388, -0.215, -0.916]\n  Array[5, 3] n=15 x∈[-1.212, -0.232] μ=-0.609 σ=0.302 cpu:0\n    Array[3] x∈[-0.724, -0.250] μ=-0.460 σ=0.197 cpu:0 [-0.405, -0.250, -0.724]\n    Array[3] x∈[-1.072, -0.232] μ=-0.576 σ=0.360 cpu:0 [-0.423, -0.232, -1.072]\n    Array[3] x∈[-0.968, -0.338] μ=-0.599 σ=0.268 cpu:0 [-0.491, -0.338, -0.968]\n    Array[3] x∈[-0.968, -0.408] μ=-0.651 σ=0.235 cpu:0 [-0.577, -0.408, -0.968]\n    Array[3] x∈[-1.212, -0.408] μ=-0.761 σ=0.336 cpu:0 [-0.662, -0.408, -1.212]\n  Array[5, 3] n=15 x∈[-1.316, -0.285] μ=-0.677 σ=0.306 cpu:0\n    Array[3] x∈[-0.828, -0.303] μ=-0.535 σ=0.219 cpu:0 [-0.474, -0.303, -0.828]\n    Array[3] x∈[-1.125, -0.285] μ=-0.628 σ=0.360 cpu:0 [-0.474, -0.285, -1.125]\n    Array[3] x∈[-1.020, -0.390] μ=-0.651 σ=0.268 cpu:0 [-0.542, -0.390, -1.020]\n    Array[3] x∈[-1.003, -0.478] μ=-0.708 σ=0.219 cpu:0 [-0.645, -0.478, -1.003]\n    Array[3] x∈[-1.316, -0.513] μ=-0.865 σ=0.336 cpu:0 [-0.765, -0.513, -1.316]",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#now-in-.rgb-color",
+    "href": "index.html#now-in-.rgb-color",
+    "title": "💘 Lovely JAX",
+    "section": "Now in .rgb color",
+    "text": "Now in .rgb color\nThe important queston - is it our man?\n\nnumbers.rgb\n\n\n\n\n\n\n\n\nMaaaaybe? Looks like someone normalized him.\n\nin_stats = ( (0.485, 0.456, 0.406),     # mean\n             (0.229, 0.224, 0.225) )    # std\n\n# numbers.rgb(in_stats, cl=True) # For channel-last input format\nnumbers.rgb(in_stats)\n\n\n\n\n\n\n\n\nIt’s indeed our hero, the Tenchman!",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#plt-the-statistics",
+    "href": "index.html#plt-the-statistics",
+    "title": "💘 Lovely JAX",
+    "section": ".plt the statistics",
+    "text": ".plt the statistics\n\n(numbers+3).plt\n\n\n\n\n\n\n\n\n\n(numbers+3).plt(center=\"mean\", max_s=1000)\n\n\n\n\n\n\n\n\n\n(numbers+3).plt(center=\"range\")",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#see-the-.chans",
+    "href": "index.html#see-the-.chans",
+    "title": "💘 Lovely JAX",
+    "section": "See the .chans",
+    "text": "See the .chans\n\n# .chans will map values betwen [-1,1] to colors.\n# Make our values fit into that range to avoid clipping.\nmean = jnp.array(in_stats[0])\nstd = jnp.array(in_stats[1])\nnumbers_01 = (numbers*std + mean)\nnumbers_01\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[0., 1.000] μ=0.361 σ=0.248 cpu:0\n\n\n\nnumbers_01.chans",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#grouping",
+    "href": "index.html#grouping",
+    "title": "💘 Lovely JAX",
+    "section": "Grouping",
+    "text": "Grouping\n\n# Make 8 images with progressively higher brightness and stack them 2x2x2.\neight_images = (jnp.stack([numbers]*8) + jnp.linspace(-2, 2, 8)[:,None,None,None])\neight_images = (eight_images\n                     *jnp.array(in_stats[1])\n                     +jnp.array(in_stats[0])\n                ).clip(0,1).reshape(2,2,2,196,196,3)\n\neight_images\n\nArray[2, 2, 2, 196, 196, 3] n=921984 (3.5Mb) x∈[0., 1.000] μ=0.382 σ=0.319 cpu:0\n\n\n\neight_images.rgb",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#sharding",
+    "href": "index.html#sharding",
+    "title": "💘 Lovely JAX",
+    "section": "Sharding",
+    "text": "Sharding\n\nassert jax.__version_info__[0] == 0\nif jax.__version_info__[1] &gt;= 4:\n    from jax.sharding import PositionalSharding\n    from jax.experimental import mesh_utils\n    sharding = PositionalSharding(mesh_utils.create_device_mesh((4,2)))\n    x = jax.random.normal(jax.random.PRNGKey(0), (8192, 8192))\n    y = jax.device_put(x, sharding)\n\n    jax.debug.visualize_array_sharding(y)\nelse:\n    # Note: Looks like ShardedDeviceArray needs an explicit device axis?\n    x = jax.random.normal(jax.random.PRNGKey(0), (8, 1024, 8192))\n    y = jax.device_put_sharded([x for x in x], jax.devices())\n\nprint(x)\nprint(y)\n\n                        \n   CPU 0       CPU 1    \n                        \n                        \n   CPU 2       CPU 3    \n                        \n                        \n   CPU 4       CPU 5    \n                        \n                        \n   CPU 6       CPU 7    \n                        \n\n\n\nArray[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0\nArray[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0,1,2,3,4,5,6,7",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#options-docs",
+    "href": "index.html#options-docs",
+    "title": "💘 Lovely JAX",
+    "section": "Options | Docs",
+    "text": "Options | Docs\n\nfrom lovely_jax import set_config, config, lovely, get_config\n\n\nset_config(precision=5, sci_mode=True, color=False)\njnp.array([1., 2, jnp.nan])\n\nArray[3] μ=1.50000e+00 σ=5.00000e-01 NaN! cpu:0 [1.00000e+00, 2.00000e+00, nan]\n\n\n\nset_config(precision=None, sci_mode=None, color=None) # None -&gt; Reset to defaults\n\n\nprint(jnp.array([1., 2]))\n# Or with config context manager.\nwith config(sci_mode=True, precision=5):\n    print(jnp.array([1., 2]))\n\nprint(jnp.array([1., 2]))\n\nArray[2] μ=1.500 σ=0.500 cpu:0 [1.000, 2.000]\nArray[2] μ=1.50000e+00 σ=5.00000e-01 cpu:0 [1.00000e+00, 2.00000e+00]\nArray[2] μ=1.500 σ=0.500 cpu:0 [1.000, 2.000]",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#without-.monkey_patch",
+    "href": "index.html#without-.monkey_patch",
+    "title": "💘 Lovely JAX",
+    "section": "Without .monkey_patch",
+    "text": "Without .monkey_patch\n\nlj.lovely(spicy)\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\n\n\n\n\nlj.lovely(spicy, verbose=True)\n\n\nArray[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0\nArray([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],\n       [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)\n\n\n\n\nlj.lovely(numbers, depth=1)\n\nArray[196, 196, 3] n=115248 (0.4Mb) x∈[-2.118, 2.640] μ=-0.388 σ=1.073 cpu:0\n  Array[196, 3] n=588 x∈[-1.912, 2.411] μ=-0.728 σ=0.519 cpu:0\n  Array[196, 3] n=588 x∈[-1.861, 2.359] μ=-0.778 σ=0.450 cpu:0\n  Array[196, 3] n=588 x∈[-1.758, 2.379] μ=-0.838 σ=0.437 cpu:0\n  Array[196, 3] n=588 x∈[-1.656, 2.466] μ=-0.878 σ=0.415 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.448] μ=-0.882 σ=0.399 cpu:0\n  Array[196, 3] n=588 x∈[-1.717, 2.431] μ=-0.905 σ=0.408 cpu:0\n  Array[196, 3] n=588 x∈[-1.563, 2.448] μ=-0.859 σ=0.416 cpu:0\n  Array[196, 3] n=588 x∈[-1.475, 2.431] μ=-0.791 σ=0.463 cpu:0\n  Array[196, 3] n=588 x∈[-1.526, 2.429] μ=-0.759 σ=0.499 cpu:0\n  ...\n\n\n\nlj.rgb(numbers, in_stats)\n\n\n\n\n\n\n\n\n\nlj.plot(numbers, center=\"mean\")\n\n\n\n\n\n\n\n\n\nlj.chans(numbers_01)",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  },
+  {
+    "objectID": "index.html#matplotlib-integration-docs",
+    "href": "index.html#matplotlib-integration-docs",
+    "title": "💘 Lovely JAX",
+    "section": "Matplotlib integration | Docs",
+    "text": "Matplotlib integration | Docs\n\nnumbers.rgb(in_stats).fig # matplotlib figure\n\n\n\n\n\n\n\n\n\n(numbers*0.3+0.5).chans.fig # matplotlib figure\n\n\n\n\n\n\n\n\n\nnumbers.plt.fig.savefig('pretty.svg') # Save it\n\n\n!file pretty.svg; rm pretty.svg\n\npretty.svg: SVG Scalable Vector Graphics image\n\n\n\nAdd content to existing Axes\n\nfig = plt.figure(figsize=(8,3))\nfig.set_constrained_layout(True)\ngs = fig.add_gridspec(2,2)\nax1 = fig.add_subplot(gs[0, :])\nax2 = fig.add_subplot(gs[1, 0])\nax3 = fig.add_subplot(gs[1,1:])\n\nax2.set_axis_off()\nax3.set_axis_off()\n\nnumbers_01.plt(ax=ax1)\nnumbers_01.rgb(ax=ax2)\nnumbers_01.chans(ax=ax3);",
+    "crumbs": [
+      "💘 Lovely JAX"
+    ]
+  }
+]
