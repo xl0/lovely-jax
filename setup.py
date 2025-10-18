@@ -1,7 +1,29 @@
 from pkg_resources import parse_version
 from configparser import ConfigParser
+import os.path
 import setuptools
+from setuptools.command.install_lib import install_lib
 assert parse_version(setuptools.__version__)>=parse_version('36.2')
+
+
+LOVELY_JAX_PTH = "_lovely_jax_hook.pth"
+LOVELY_JAX_PY = "_lovely_jax_hook.py"
+
+
+class InstallLibWithHook(install_lib):
+    def run(self):
+        install_lib.run(self)
+        outputs = []
+        for f in [LOVELY_JAX_PTH, LOVELY_JAX_PY]:
+            source = os.path.join(os.path.dirname(__file__), f)
+            dest = os.path.join(self.install_dir, f)
+            self.copy_file(source, dest)
+            outputs.append(dest)
+        self.outputs = outputs
+
+    def get_outputs(self):
+        return [*install_lib.get_outputs(self), *self.outputs]
+
 
 # note: all settings are in settings.ini; edit there, not here
 config = ConfigParser(delimiters=['='])
@@ -22,7 +44,7 @@ licenses = {
 }
 statuses = [ '1 - Planning', '2 - Pre-Alpha', '3 - Alpha',
     '4 - Beta', '5 - Production/Stable', '6 - Mature', '7 - Inactive' ]
-py_versions = '3.6 3.7 3.8 3.9 3.10'.split()
+py_versions = '3.7 3.8 3.9 3.10 3.11 3.12 3.13 3.14'.split()
 
 requirements = cfg.get('requirements','').split()
 if cfg.get('pip_requirements'): requirements += cfg.get('pip_requirements','').split()
@@ -52,6 +74,10 @@ setuptools.setup(
         'console_scripts': cfg.get('console_scripts','').split(),
         'nbdev': [f'{cfg.get("lib_path")}={cfg.get("lib_path")}._modidx:d']
     },
+    cmdclass = {
+        'install_lib': InstallLibWithHook,
+    },
+
     **setup_cfg)
 
 

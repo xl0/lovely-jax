@@ -5,7 +5,6 @@ __all__ = ['jax_to_str_common', 'lovely']
 
 # %% ../nbs/00_repr_str.ipynb
 import warnings
-from typing import Union, Optional as O
 
 import numpy as np
 import jax, jax.numpy as jnp
@@ -14,7 +13,7 @@ from lovely_numpy import np_to_str_common, pretty_str, sparse_join, ansi_color, 
 from lovely_numpy import config as lnp_config
 
 from .utils.config import get_config, config
-from .utils.misc import to_numpy, is_cpu, test_array_repr
+from .utils.misc import is_cpu, test_array_repr
 
 # %% ../nbs/00_repr_str.ipynb
 dtnames =   {   "float16": "f16",
@@ -57,6 +56,53 @@ def is_nasty(x: jax.Array):
     return jnp.isnan(x_min) or jnp.isinf(x_min) or jnp.isinf(x_max)
 
 # %% ../nbs/00_repr_str.ipynb
+def format_sharding(sharding) -> str:
+    """Format sharding information in a compact, informative way."""
+    from jax.sharding import SingleDeviceSharding, NamedSharding
+
+    devices = sorted(sharding.device_set, key=lambda d: d.id)
+    platform = devices[0].platform
+
+    if len(devices) == 1:
+        return f"{platform}:{devices[0].id}"
+
+    # Format device range
+    dev_ids = [d.id for d in devices]
+    if len(set(dev_ids)) > 2:
+        dev_range = f"{min(dev_ids)}-{max(dev_ids)}"
+    else:
+        dev_range = ",".join(map(str, dev_ids))
+
+    # Add sharding type info
+    if isinstance(sharding, SingleDeviceSharding):
+        shard_info = ""
+    elif isinstance(sharding, NamedSharding):
+        # Format PartitionSpec compactly: P('x', 'y') -> S[x,y], P('x', None) -> S[x,·]
+        spec_str = str(sharding.spec)
+        # Extract the content from PartitionSpec(...)
+        if "PartitionSpec" in spec_str:
+            spec_str = spec_str.replace("PartitionSpec(", "").rstrip(")")
+        # Clean up the formatting
+        spec_str = spec_str.replace("'", "").replace(", ", ",").replace("None", "·")
+
+        # Add mesh shape for multi-dimensional meshes
+        # mesh.shape is an OrderedDict with axis_names as keys
+        mesh_shape = sharding.mesh.shape
+        if len(mesh_shape) > 1:
+            # Get the axis names from the mesh in order
+            axis_names = list(mesh_shape.keys())
+            # Build shape string in the order of axis names
+            mesh_str = "×".join(str(mesh_shape[name]) for name in axis_names)
+            shard_info = f"S[{spec_str}] {mesh_str} "
+        else:
+            shard_info = f"S[{spec_str}] "
+    else:
+        shard_info = f"{type(sharding).__name__} "
+
+    return f"{shard_info}{platform}:{dev_range}"
+
+
+# %% ../nbs/00_repr_str.ipynb
 def jax_to_str_common(x: jax.Array,  # Input
                         color=True,                     # ANSI color highlighting
                         ddof=0):                        # For "std" unbiasing
@@ -65,11 +111,6 @@ def jax_to_str_common(x: jax.Array,  # Input
         return ansi_color("empty", "grey", color)
 
     zeros = ansi_color("all_zeros", "grey", color) if jnp.equal(x, 0.).all() and x.size > 1 else None
-    # pinf = ansi_color("+Inf!", "red", color) if jnp.isposinf(x).any() else None
-    # ninf = ansi_color("-Inf!", "red", color) if jnp.isneginf(x).any() else None
-    # nan = ansi_color("NaN!", "red", color) if jnp.isnan(x).any() else None
-
-    # attention = sparse_join([zeros,pinf,ninf,nan])
 
     summary = None
     if not zeros and x.ndim > 0:
@@ -98,16 +139,15 @@ def to_str(x: jax.Array,  # Input
     shape = str(list(x.shape)) if x.ndim else None
     type_str = sparse_join([tname, shape], sep="")
 
-    if hasattr(x, "devices"): # Unified Array (jax >= 0.4)
+    # Check for sharding first, as sharded arrays also have .devices()
+    if hasattr(x, "sharding"):
+        dev = format_sharding(x.sharding)
+    elif hasattr(x, "devices"): # Unified Array (jax >= 0.4)
         int_dev_ids = sorted([d.id for d in x.devices()])
         ids = ",".join(map(str, int_dev_ids))
         dev = f"{list(x.devices())[0].platform}:{ids}"
     elif hasattr(x, "device"): # Old-style DeviceArray
         dev = f"{x.device().platform}:{x.device().id}"
-    elif hasattr(x, "sharding"):
-        int_dev_ids = sorted([d.id for d in x.sharding.devices])
-        ids = ",".join(map(str, int_dev_ids))
-        dev = f"{x.sharding.devices[0].platform}:{ids}"
     else:
         assert 0, f"Weird input type={type(input)}, expecrted Array, DeviceArray, or ShardedDeviceArray"
 

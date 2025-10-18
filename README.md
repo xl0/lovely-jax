@@ -31,29 +31,47 @@ the cell output, and see this:
 numbers
 ```
 
-    Array([[[-0.354, -0.337, -0.405, ..., -0.56 , -0.474,  2.249],
-            [-0.405, -0.423, -0.491, ..., -0.919, -0.851,  2.163],
-            [-0.474, -0.474, -0.542, ..., -1.039, -1.039,  2.198],
+    Array([[[-0.35405433, -0.33692956, -0.4054286 , ..., -0.55955136,
+             -0.4739276 ,  2.2489083 ],
+            [-0.4054286 , -0.42255333, -0.49105233, ..., -0.91917115,
+             -0.8506721 ,  2.1632845 ],
+            [-0.4739276 , -0.4739276 , -0.5424266 , ..., -1.0390445 ,
+             -1.0390445 ,  2.1975338 ],
             ...,
-            [-0.902, -0.834, -0.936, ..., -1.467, -1.296,  2.232],
-            [-0.851, -0.782, -0.936, ..., -1.604, -1.501,  2.18 ],
-            [-0.834, -0.816, -0.971, ..., -1.656, -1.553,  2.112]],
+            [-0.9020464 , -0.8335474 , -0.9362959 , ..., -1.4671633 ,
+             -1.2959158 ,  2.2317834 ],
+            [-0.8506721 , -0.78217316, -0.9362959 , ..., -1.6041614 ,
+             -1.5014129 ,  2.1804092 ],
+            [-0.8335474 , -0.81642264, -0.9705454 , ..., -1.6555357 ,
+             -1.5527872 ,  2.11191   ]],
 
-           [[-0.197, -0.197, -0.303, ..., -0.478, -0.373,  2.411],
-            [-0.25 , -0.232, -0.338, ..., -0.705, -0.67 ,  2.359],
-            [-0.303, -0.285, -0.39 , ..., -0.74 , -0.81 ,  2.376],
+           [[-0.19747896, -0.19747896, -0.30252096, ..., -0.47759098,
+             -0.37254897,  2.4110641 ],
+            [-0.24999997, -0.23249297, -0.33753496, ..., -0.705182  ,
+             -0.670168  ,  2.3585434 ],
+            [-0.30252096, -0.28501397, -0.39005598, ..., -0.740196  ,
+             -0.810224  ,  2.3760502 ],
             ...,
-            [-0.425, -0.232, -0.373, ..., -1.09 , -1.02 ,  2.429],
-            [-0.39 , -0.232, -0.425, ..., -1.23 , -1.23 ,  2.411],
-            [-0.408, -0.285, -0.478, ..., -1.283, -1.283,  2.341]],
+            [-0.42507   , -0.23249297, -0.37254897, ..., -1.0903361 ,
+             -1.0203081 ,  2.4285715 ],
+            [-0.39005598, -0.23249297, -0.42507   , ..., -1.230392  ,
+             -1.230392  ,  2.4110641 ],
+            [-0.40756297, -0.28501397, -0.47759098, ..., -1.2829131 ,
+             -1.2829131 ,  2.3410363 ]],
 
-           [[-0.672, -0.985, -0.881, ..., -0.968, -0.689,  2.396],
-            [-0.724, -1.072, -0.968, ..., -1.247, -1.02 ,  2.326],
-            [-0.828, -1.125, -1.02 , ..., -1.264, -1.16 ,  2.379],
+           [[-0.67154676, -0.9852723 , -0.88069713, ..., -0.9678431 ,
+             -0.68897593,  2.3959913 ],
+            [-0.7238344 , -1.0724182 , -0.9678431 , ..., -1.2467101 ,
+             -1.0201306 ,  2.3262744 ],
+            [-0.82840955, -1.1247058 , -1.0201306 , ..., -1.2641394 ,
+             -1.1595641 ,  2.3785625 ],
             ...,
-            [-1.229, -1.473, -1.386, ..., -1.508, -1.264,  2.518],
-            [-1.194, -1.456, -1.421, ..., -1.648, -1.473,  2.431],
-            [-1.229, -1.526, -1.508, ..., -1.682, -1.526,  2.361]]], dtype=float32)
+            [-1.229281  , -1.4732897 , -1.3861438 , ..., -1.5081482 ,
+             -1.2641394 ,  2.5179958 ],
+            [-1.1944225 , -1.4558606 , -1.4210021 , ..., -1.6475817 ,
+             -1.4732897 ,  2.4308496 ],
+            [-1.229281  , -1.5255773 , -1.5081482 , ..., -1.68244   ,
+             -1.5255773 ,  2.3611329 ]]], dtype=float32)
 
 Was it really useful for you, as a human, to see all these numbers?
 
@@ -111,15 +129,19 @@ spicy.v # Verbose
 ```
 
     Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0
-    Array([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],
-           [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)
+    Array([[-3.5405432e+03, -1.9747897e-05,            inf,           -inf,
+                       nan, -9.8527229e-01],
+           [-4.0542859e-01, -3.0252096e-01, -8.8069713e-01, -4.3967807e-01,
+            -3.0252096e-01, -7.7612197e-01]], dtype=float32)
 
 ``` python
 spicy.p # The plain old way
 ```
 
-    Array([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],
-           [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)
+    Array([[-3.5405432e+03, -1.9747897e-05,            inf,           -inf,
+                       nan, -9.8527229e-01],
+           [-4.0542859e-01, -3.0252096e-01, -8.8069713e-01, -4.3967807e-01,
+            -3.0252096e-01, -7.7612197e-01]], dtype=float32)
 
 ## Going `.deeper`
 
@@ -252,20 +274,21 @@ eight_images.rgb
 
 ``` python
 assert jax.__version_info__[0] == 0
-if jax.__version_info__[1] >= 4:
-    from jax.sharding import PositionalSharding
-    from jax.experimental import mesh_utils
-    sharding = PositionalSharding(mesh_utils.create_device_mesh((4,2)))
-    x = jax.random.normal(jax.random.PRNGKey(0), (8192, 8192))
-    y = jax.device_put(x, sharding)
+from jax.sharding import NamedSharding, Mesh, PartitionSpec as P
+from jax.experimental import mesh_utils
 
-    jax.debug.visualize_array_sharding(y)
-else:
-    # Note: Looks like ShardedDeviceArray needs an explicit device axis?
-    x = jax.random.normal(jax.random.PRNGKey(0), (8, 1024, 8192))
-    y = jax.device_put_sharded([x for x in x], jax.devices())
+# Create a mesh with named axes
+devices = mesh_utils.create_device_mesh((4, 2))
+mesh = Mesh(devices, axis_names=('y', 'x'))
 
-print(x)
+# Create sharding with PartitionSpec
+sharding = NamedSharding(mesh, P('y', 'x'))
+
+x = jax.random.normal(jax.random.PRNGKey(0), (8192, 8192))
+y = jax.device_put(x, sharding)
+
+jax.debug.visualize_array_sharding(y)
+
 print(y)
 ```
 
@@ -283,13 +306,12 @@ print(y)
 <span style="color: #ffffff; text-decoration-color: #ffffff; background-color: #a55194">            </span><span style="color: #ffffff; text-decoration-color: #ffffff; background-color: #8c6d31">            </span>
 </pre>
 
-    Array[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0
-    Array[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=-0.000 σ=1.000 cpu:0,1,2,3,4,5,6,7
+    Array[8192, 8192] n=67108864 (0.2Gb) x∈[-5.420, 5.220] μ=1.508e-05 σ=1.000 S[y,x] 4×2 cpu:0-7
 
 ## Options \| [Docs](utils.config.html)
 
 ``` python
-from lovely_jax import set_config, config, lovely, get_config
+from lovely_jax import set_config, config
 ```
 
 ``` python
@@ -329,8 +351,10 @@ lj.lovely(spicy, verbose=True)
 ```
 
     Array[2, 6] n=12 x∈[-3.541e+03, -1.975e-05] μ=-393.848 σ=1.113e+03 +Inf! -Inf! NaN! cpu:0
-    Array([[-3.541e+03, -1.975e-05,        inf,       -inf,        nan, -9.853e-01],
-           [-4.054e-01, -3.025e-01, -8.807e-01, -4.397e-01, -3.025e-01, -7.761e-01]], dtype=float32)
+    Array([[-3.5405432e+03, -1.9747897e-05,            inf,           -inf,
+                       nan, -9.8527229e-01],
+           [-4.0542859e-01, -3.0252096e-01, -8.8069713e-01, -4.3967807e-01,
+            -3.0252096e-01, -7.7612197e-01]], dtype=float32)
 
 ``` python
 lj.lovely(numbers, depth=1)
@@ -409,3 +433,56 @@ numbers_01.chans(ax=ax3);
 ```
 
 ![](index_files/figure-commonmark/cell-37-output-1.png)
+
+## Import hook
+
+Lovely JAX installs an import hook. Set `LOVELY_JAX=1`, and it will load
+automatically, no need to modify the code:
+
+> Note: You can now set it globally. The installed import hook will
+> trigger only when JAX is imported.
+
+``` python
+import jax
+
+x = jax.random.normal(jax.random.PRNGKey(0), (4, 16))
+print(x)
+```
+
+``` bash
+LOVELY_JAX=1 python test.py
+```
+
+    x: Array[4, 16] n=64 x∈[-1.955, 2.180] μ=0.031 σ=0.960 cpu:0
+
+This is especially useful in combination with [Better
+Exceptions](https://github.com/Qix-/better-exceptions):
+
+> Note: Better exceptions seems to be not working with Python 3.13:
+> https://github.com/Qix-/better-exceptions/issues/134
+
+``` python
+import jax
+import jax.numpy as jnp
+
+x = jax.random.normal(jax.random.PRNGKey(0), (4, 16))
+print(f"x: {x}")
+
+w = jax.random.normal(jax.random.PRNGKey(1), (15, 8))
+y = jnp.matmul(x, w)  # Dimension mismatch
+```
+
+``` bash
+BETTER_EXCEPTIONS=1 LOVELY_JAX=1 python test.py
+```
+
+    x: Array[4, 16] n=64 x∈[-1.955, 2.180] μ=0.031 σ=0.960 cpu:0
+    Traceback (most recent call last):
+      File "/home/xl0/work/projects/lovely-jax/test.py", line 9, in <module>
+        y = jnp.matmul(x, w)  # Dimension mismatch
+            │          │  └ Array[15, 8] n=120 x∈[-2.746, 2.608] μ=-0.003 σ=1.072 cpu:0
+            │          └ Array[4, 16] n=64 x∈[-1.955, 2.180] μ=0.031 σ=0.960 cpu:0
+            └ <module 'jax.numpy' from '...'>
+      File "...jax/_src/numpy/tensor_contractions.py", line 254, in matmul
+        out = lax.dot_general(
+    TypeError: dot_general requires contracting dimensions to have the same shape, got (16,) and (15,).

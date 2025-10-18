@@ -2,4 +2,6 @@ include settings.ini
 include LICENSE
 include CONTRIBUTING.md
 include README.md
+include _lovely_jax_hook.pth
+include _lovely_jax_hook.py
 recursive-exclude * __pycache__

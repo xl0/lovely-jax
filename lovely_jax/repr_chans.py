@@ -7,7 +7,7 @@ __all__ = ['chans']
 from typing import Any, Optional as O
 
 import jax, jax.numpy as jnp
-from matplotlib import pyplot as plt, axes, figure
+from matplotlib import axes, figure
 
 from lovely_numpy.utils.utils import cached_property
 from lovely_numpy.repr_chans import fig_chans

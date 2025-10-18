@@ -5,11 +5,8 @@ __all__ = []
 
 # %% ../../nbs/03b_utils.misc.ipynb
 import re
-import codecs
 import numpy as np
 import jax, jax.numpy as jnp
-
-from fastcore.test import test_eq
 
 # %% ../../nbs/03b_utils.misc.ipynb
 def to_numpy(t):
@@ -38,13 +35,13 @@ def test_array_repr(input: str, template:str):
     # regexes that will match either case
 
     # Escape the template to make it a valid regex.
-     
+
     template = re.escape(template)
     template = template.replace("Array", "(Array|DeviceArray)")
     template = template.replace("\\ gpu:0", "( cpu:0| gpu:0| tpu:0)?")
-    
+
     # Does imput match the regex?
     if not re.search(template, input):
         template = template.replace("\\", "")
         raise Exception(f"Template does not match\nTemplate: '{template}'\ninput:    '{input}'")
-        
+

@@ -18,7 +18,7 @@ from .repr_chans import ChanProxy
 
 # %% ../nbs/10_patch.ipynb
 def _monkey_patch(cls):
-    "Monkey-patch lovely features into `cls`" 
+    "Monkey-patch lovely features into `cls`"
 
     if not hasattr(cls, '_plain_repr'):
         cls._plain_repr = cls.__repr__
@@ -28,7 +28,7 @@ def _monkey_patch(cls):
     @patch_to(cls)
     def __repr__(self: jax.Array):
         return str(StrProxy(self))
-    
+
     # __str__ is used when you do print(), and gives a less detailed version of the object.
     # __repr__ is used when you inspect an object in Jupyter or VSCode, and gives a more detailed version.
     # I think we want to patch both.
@@ -59,7 +59,7 @@ def _monkey_patch(cls):
     @patch_to(cls, as_prop=True)
     def rgb(t: jax.Array):
         return RGBProxy(t)
-    
+
     @patch_to(cls, as_prop=True)
     def chans(t: jax.Array):
         return ChanProxy(t)
@@ -81,4 +81,4 @@ def monkey_patch():
     if not hasattr(jax, "interpreters"):
         if hasattr(jax.pxla, '_ShardedDeviceArray'):
             _monkey_patch(jax.pxla._ShardedDeviceArray)
-    
+

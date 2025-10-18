@@ -6,9 +6,8 @@ __all__ = ['set_config', 'get_config', 'config']
 # %% ../../nbs/03a_utils.config.ipynb
 from copy import copy
 from types import SimpleNamespace
-from typing import Optional, Union, Callable, TypeVar
+from typing import Optional, Union, TypeVar
 from contextlib import contextmanager
-from lovely_numpy import config as np_config
 
 # %% ../../nbs/03a_utils.config.ipynb
 class Config(SimpleNamespace):
@@ -33,7 +32,7 @@ _defaults = Config()
 _config = copy(_defaults)
 
 # %% ../../nbs/03a_utils.config.ipynb
-# Allows passing None as an argument to reset the 
+# Allows passing None as an argument to reset the
 class _Default():
     def __repr__(self):
         return "Ignore"

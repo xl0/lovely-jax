@@ -8,12 +8,9 @@ from typing import Any, Optional as O
 
 
 from matplotlib import axes, figure
-from PIL import Image
 import jax, jax.numpy as jnp
 
 from lovely_numpy.utils.utils import cached_property
-from lovely_numpy.utils.pad import pad_frame_gutters
-from lovely_numpy.utils.tile2d import hypertile
 from lovely_numpy.repr_rgb import fig_rgb
 from lovely_numpy import config as np_config
 
