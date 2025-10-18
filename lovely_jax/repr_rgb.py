@@ -8,7 +8,6 @@ from typing import Any, Optional as O
 
 
 from matplotlib import axes, figure
-from IPython.core.pylabtools import print_figure
 from PIL import Image
 import jax, jax.numpy as jnp
 
@@ -21,7 +20,6 @@ from lovely_numpy import config as np_config
 from .utils.misc import to_numpy
 from .utils.config import get_config
 
-
 # %% ../nbs/01_repr_rgb.ipynb
 # This is here for the monkey-patched tensor use case.
 
@@ -31,13 +29,13 @@ from .utils.config import get_config
 
 class RGBProxy():
     """Flexible `PIL.Image.Image` wrapper"""
-    
+
     def __init__(self, x: jax.Array):
         assert x.ndim >= 3, f"Expecting at least 3 dimensions, got shape{x.shape}={x.ndim}"
         self.x =x
         self.params = dict(denorm   = None,
                             cl         = True,
-                            gutter_px  = 3,     
+                            gutter_px  = 3,
                             frame_px   = 1,
                             scale      = 1,
                             view_width = 966,
@@ -52,7 +50,7 @@ class RGBProxy():
                 scale       :O[int] =None,
                 view_width  :O[int] =None,
                 ax          :O[axes.Axes]=None):
-        
+
         self.params.update( { k:v for
                             k,v in locals().items()
                             if k != "self" and v is not None } )
@@ -66,9 +64,9 @@ class RGBProxy():
             return fig_rgb(to_numpy(self.x), **self.params)
 
     def _repr_png_(self):
+        from IPython.core.pylabtools import print_figure
         return print_figure(self.fig, fmt="png", pad_inches=0,
             metadata={"Software": "Matplotlib, https://matplotlib.org/"})
-
 
 # %% ../nbs/01_repr_rgb.ipynb
 def rgb(x           :jax.Array,     # Tensor to display. [[...], C,H,W] or [[...], H,W,C]
@@ -83,5 +81,5 @@ def rgb(x           :jax.Array,     # Tensor to display. [[...], C,H,W] or [[...
 
     args = locals()
     del args["x"]
-    
+
     return RGBProxy(x)(**args)

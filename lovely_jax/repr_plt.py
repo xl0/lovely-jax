@@ -9,7 +9,6 @@ from typing import Union, Any, Optional as O
 
 import jax, jax.numpy as jnp
 from matplotlib import pyplot as plt, axes, figure, rc_context, rcParams
-from IPython.core.pylabtools import print_figure
 
 from lovely_numpy.utils.utils import cached_property
 from lovely_numpy.repr_plt import fig_plot
@@ -21,9 +20,9 @@ from .utils.config import get_config, config
 
 # %% ../nbs/02_repr_plt.ipynb
 # This is here for the monkey-patched tensor use case.
-# Gives the ability to call both .plt and .plt(ax=ax).  
+# Gives the ability to call both .plt and .plt(ax=ax).
 
-class PlotProxy(): 
+class PlotProxy():
     """Flexible `PIL.Image.Image` wrapper"""
 
     def __init__(self, x:jax.Array):
@@ -42,7 +41,7 @@ class PlotProxy():
         self.params.update( { k:v for
                     k,v in locals().items()
                     if k != "self" and v is not None } )
-        
+
         _ = self.fig # Trigger figure generation
         return self
 
@@ -57,10 +56,12 @@ class PlotProxy():
                             **self.params)
 
     def _repr_png_(self):
+        from IPython.core.pylabtools import print_figure
         return print_figure(self.fig, fmt="png",
             metadata={"Software": "Matplotlib, https://matplotlib.org/"})
 
     def _repr_svg_(self):
+        from IPython.core.pylabtools import print_figure
         # Metadata and context for a mode deterministic svg generation
         metadata={
             "Date": None,
@@ -70,7 +71,6 @@ class PlotProxy():
             svg_repr = print_figure(self.fig, fmt="svg", metadata=metadata)
         return svg_repr
 
-
 # %% ../nbs/02_repr_plt.ipynb
 def plot(   x       :jax.Array, # Tensor to explore
             center  :str    ="zero",    # Center plot on  `zero`, `mean`, or `range`
@@ -78,7 +78,7 @@ def plot(   x       :jax.Array, # Tensor to explore
             plt0    :Any    =True,      # Take zero values into account
             ax      :O[axes.Axes]=None  # Optionally provide a matplotlib axes.
         ) -> PlotProxy:
-    
+
     args = locals()
     del args["x"]
 
