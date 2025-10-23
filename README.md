@@ -458,9 +458,6 @@ LOVELY_JAX=1 python test.py
 This is especially useful in combination with [Better
 Exceptions](https://github.com/Qix-/better-exceptions):
 
-> Note: Better exceptions seems to be not working with Python 3.13:
-> https://github.com/Qix-/better-exceptions/issues/134
-
 ``` python
 import jax
 import jax.numpy as jnp
